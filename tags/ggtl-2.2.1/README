@@ -1,0 +1,20 @@
+GGTL 2.1.x 
+
+GGTL is a library designed to make it easier to program games in
+C. It provides an AI that is able to play most 2 player strategic
+games. Nim, Tic-Tac-Toe, Reversi (aka Othello), Connect-4 and
+Chess are all examples of games that can all be implemented using
+GGTL. 
+
+The provided Reversi and Nim extensions implement all the
+game-specific callback functions GGTL's AI needs. Using one of
+these extensions means you can have a game with a capable AI up
+and running in next to no time. Doing so incurs no penalty in
+flexibility, however--you can override any provided callback
+function with your own.
+
+The core library documentation can be found in the ggtl(3)
+manpage. The reversi(3) and nim(3) manpages should be consulted
+for its extensions.
+
+The GGTL homepage is at http://brautaset.org/software/ggtl/

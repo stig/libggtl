@@ -1,0 +1,4 @@
+debian/tmp/usr/lib/libggtl*.a
+debian/tmp/usr/lib/libggtl*.so
+debian/tmp/usr/include/ggtl/*.h
+debian/tmp/usr/bin/reversi-demo

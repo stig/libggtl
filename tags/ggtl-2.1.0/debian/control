@@ -1,0 +1,76 @@
+Source: ggtl
+Section: libdevel
+Priority: optional
+Maintainer: Stig Brautaset <stig@brautaset.org>
+Build-Depends: libsl-dev (>= 0.3pre2), debhelper (>= 4.0.2), binutils (>= 2.14.90.0.7), libtap-dev (>= 1.0.1)
+Standards-Version: 3.5.10
+
+Package: libggtl
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: generic game-tree library for strategic games
+ GGTL (Generic Game-Tree Library) is a C library to help people
+ program strategic games. It is targeted in particular at
+ two-player zero-sum games with perfect information. Examples of
+ such games are Chess, Checkers, Go, Othello, Tic-Tac-Toe and
+ Connect-4. For this kind of games, GGTL currently provides:
+ .
+  - Iterative deepening Alpha-Beta game-tree search with move
+  - ordering based on the results from the previous iteration
+  - Unlimited undo
+  - Saving to and resuming from files
+ .
+ Games that don't fully meet the requirements may still use GGTL
+ as long as they are of the type alternate move (yes, even
+ N-player games are supported). Basically, the only main feature
+ they miss out on is the game-tree search.
+
+Package: libggtl-dbg
+Section: libdevel
+Architecture: any
+Depends: ${shlibs:Depends}, libggtl (= ${Source-Version})
+Description: generic game-tree library for strategic games
+ GGTL (Generic Game-Tree Library) is a C library to help people
+ program strategic games. It is targeted in particular at
+ two-player zero-sum games with perfect information. Examples of
+ such games are Chess, Checkers, Go, Othello, Tic-Tac-Toe and
+ Connect-4. For this kind of games, GGTL currently provides:
+ .
+  - Iterative deepening Alpha-Beta game-tree search with move
+  - ordering based on the results from the previous iteration
+  - Unlimited undo
+  - Saving to and resuming from files
+ .
+ Games that don't fully meet the requirements may still use GGTL
+ as long as they are of the type alternate move (yes, even
+ N-player games are supported). Basically, the only main feature
+ they miss out on is the game-tree search.
+ .
+ This package contains debugging information.
+
+Package: libggtl-dev
+Section: libdevel
+Architecture: any
+Recommends: libggtl-dbg (= ${Source-Version})
+Depends: ${shlibs:Depends}, libggtl (= ${Source-Version}), libsl-dev (>= 0.3pre2)
+Description: generic game-tree library for strategic games
+ GGTL (Generic Game-Tree Library) is a C library to help people
+ program strategic games. It is targeted in particular at
+ two-player zero-sum games with perfect information. Examples of
+ such games are Chess, Checkers, Go, Othello, Tic-Tac-Toe and
+ Connect-4. For this kind of games, GGTL currently provides:
+ .
+  - Iterative deepening Alpha-Beta game-tree search with move
+  - ordering based on the results from the previous iteration
+  - Unlimited undo
+  - Saving to and resuming from files
+ .
+ Games that don't fully meet the requirements may still use GGTL
+ as long as they are of the type alternate move (yes, even
+ N-player games are supported). Basically, the only main feature
+ they miss out on is the game-tree search.
+ .
+ This package contains the header files, manpages and static 
+ libraries.
+

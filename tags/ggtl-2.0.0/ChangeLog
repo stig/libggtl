@@ -1,0 +1,88 @@
+ggtl 2.0.0 @ 2005-07-16
+
+  Only minor changes since 1.99.5:
+  * re-arrange tests
+  * update version number
+
+ggtl 1.99.5 @ 2005-07-03
+
+  Many minor changes, including:
+  * consider warnings as errors
+  * plan number of tests we are running
+  * tidy up perl testing a bit
+  * return with exit_status() from tests
+  * config.h.in is generated. do not check it in
+  * documentation updates 
+  * use typedef GGTL_VTAB for 'struct ggtl_vtab'
+  * remove unnused variable
+  * do not check for sl header
+  * fix link in configure.ac 
+  * check for gettimeofday in addition to sys/time
+
+ggtl 1.99.4 @ 2005-06-05
+
+  * Added iterative deepening alpha-beta search. Uses
+    gettimeofday() if available, else falls back to use time() 
+  * ggtl_set()/ggtl_get() have replaced custom accessors
+  * added tests for default run-time config options
+  * added reversi trace test
+  * use typedefs for important datatypes, and document them better
+  * various code and documentation cleanups
+  * skip tests if libtap is not present
+  * fallback to running tests manually if 'prove' is not present
+
+ggtl 1.99.3 @ 2005-05-15
+
+  * Found and fixed a major bug in the alpha-beta search after
+    testing against human players. Turns out it is very important
+    to take the _first_ best move found in a search.
+  * Reversi fitness is now a function of both available moves and
+    captured pieces
+  * fixed move accounting for special case when search is skipped
+  * fixed bug that caused some tests to be skipped when building
+    out of the source tree
+  * fixed off-by-one bug in reversi move routine 
+  * added -W and -Wall compiler flags and fixed warnings 
+  * added some tests and performed some minor code cleanups
+
+ggtl 1.99.2 @ 2005-04-30
+
+  * Do not link ggtl with tap; use it only in the tests
+  * Killed a bug that prohibited re-use of cached moves in
+    the reversi extension. This caused it to use massive amounts
+    of memory.
+  * improve reversi-demo and add manpage for it
+  * make AI skip search when only 1 move is available
+  * kill duplication across the various AIs
+  * added tests for trace 
+  * clean up tests a bit and move to using recursive make for
+    them
+
+ggtl 1.99.1 @ 2005-04-16
+
+  The main change in this release was that the ggtl_list
+  container structure was split into the separate ggtl_mc and
+  ggtl_sc structures. This allows for a little stricter typing,
+  and makes it clearer what each function returns.
+
+  Other changes include:
+  * Added -release linker flag different versions can co-exist 
+  * Added -no-undefined linker flag to allow building on cygwin
+  * Added debian package generation
+  * Various documentation improvements
+
+ggtl 1.99 @ 2005-04-02
+
+  This is a GGTL 2.0 preview release. 
+
+  GGTL has been rewritten from the ground up to be more flexible,
+  more extendible, and easier to use. It now ships with
+  extensions for playing Reversi (of any size) and a very simple
+  variety of Nim. The code is now stable, but some features are
+  still missing and the API is still not entirely set in stone.
+
+  Regretfully, backward compatibility with previous versions had
+  to be sacrificed in order to meet the goals for this version.
+  Versions 1.x and 2.x can both be installed at the same time,
+  however, so updating programs to use the new version should be
+  relatively simple.
