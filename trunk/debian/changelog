@@ -1,0 +1,126 @@
+ggtl (2.1.0-1) unstable; urgency=low
+
+  * new upstream version
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun, 14 Aug 2005 10:32:00 +0100
+
+ggtl (1.99.3-1) unstable; urgency=low
+
+  * new upstream version
+  * install reversi-demo as well
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun, 15 May 2005 14:34:45 +0100
+
+ggtl (1.99.2-1) unstable; urgency=low
+
+  * new upstream version
+
+ -- Stig Brautaset <stig@brautaset.org>  Sat, 30 Apr 2005 17:47:57 +0100
+
+ggtl (1.99.1-2) unstable; urgency=low
+
+  * build-depend on libtap-dev
+
+ -- Stig Brautaset <stig@brautaset.org>  Sat, 23 Apr 2005 20:08:03 +0100
+
+ggtl (1.99.1-1) unstable; urgency=low
+
+  * new upstream version
+  * use substitution variables for version number in control
+  * improve matching in *.install files
+
+ -- Stig Brautaset <stig@brautaset.org>  Sat, 16 Apr 2005 17:43:05 +0100
+
+ggtl (1.99-2) unstable; urgency=low
+
+  * removed Doxygen from build-dep
+  * added libsl-dev dependency to libggtl-dev
+
+ -- Stig Brautaset <stig@brautaset.org>  Mon, 11 Apr 2005 21:08:27 +0100
+
+ggtl (1.99-1) unstable; urgency=low
+
+  * new upstream version
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun, 10 Apr 2005 10:56:59 +0100
+
+ggtl (1.2pre1-1) unstable; urgency=low
+
+  * New upstream version
+  * Added shared library package (libggtl)
+  * Added debug package (libggtl-dbg)
+  * Added libsl-dev, doxygen & binutils to build-depends
+  * Generate documentation on each build
+
+ -- Stig Brautaset <stig@brautaset.org>  Mon,  4 Oct 2004 22:26:51 +0100
+
+ggtl (1.1.1-11) unstable; urgency=low
+
+  * build from "release" branch instead of "devo"
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun, 22 Aug 2004 22:27:51 +0100
+
+ggtl (1.1.1-10) unstable; urgency=low
+
+  * remove foobar in rules file
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun, 22 Aug 2004 19:23:31 +0100
+
+ggtl (1.1.1-9) unstable; urgency=low
+
+  * using something closer to the rules.multi2 example rules file
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun, 22 Aug 2004 19:15:12 +0100
+
+ggtl (1.1.1-8) unstable; urgency=low
+
+  * removed build-depend on libglut3-dev
+  * build-depend debhelper 4.0.2 (was: 4.0.4)
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun, 22 Aug 2004 16:35:03 +0100
+
+ggtl (1.1.1-7) unstable; urgency=low
+
+  * build largely unrelated packages from their own source
+
+ -- Stig Brautaset <stig@brautaset.org>  Mon, 31 May 2004 14:21:40 +0100
+
+ggtl (1.1.1-6) unstable; urgency=low
+
+  * Install copyright file in all packages + remove LICENCE files
+  * Install gmoth/gconnect4 too 
+
+ -- Stig Brautaset <stig@brautaset.org>  Sat, 22 May 2004 23:00:23 +0100
+
+ggtl (1.1.1-5) unstable; urgency=low
+
+  * Added build-dependency on libglut3-dev (for moth & connect4)
+  * Removed superfluous {moth,connect4}.dirs files
+
+ -- Stig Brautaset <stig@brautaset.org>  Sat, 15 May 2004 19:04:35 +0100
+
+ggtl (1.1.1-4) unstable; urgency=low
+
+  * for now generate lib{sl,options}-dev packages from this source as well
+
+ -- Stig Brautaset <stig@brautaset.org>  Sat, 15 May 2004 10:56:37 +0100
+
+ggtl (1.1.1-3) unstable; urgency=low
+
+  * Install changelogs for libggtl-dev, not ggtl
+  * Removed empty line in libggtl-dev.manpages
+  * Added independent changelog files for moth & connect4 
+
+ -- Stig Brautaset <stig@brautaset.org>  Sat, 15 May 2004 10:25:11 +0100
+
+ggtl (1.1.1-2) unstable; urgency=low
+
+  * Rebuild after fixed warning in liboptions
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun,  9 May 2004 15:41:39 +0100
+
+ggtl (1.1.1-1) unstable; urgency=low
+
+  * Merge source packages libggtl & ggtl-games
+
+ -- Stig Brautaset <stig@brautaset.org>  Sun,  9 May 2004 14:58:41 +0100
