@@ -4,7 +4,6 @@ AC_INIT(ggtl, 2.1.1, stig@brautaset.org)
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIR([config])
 AC_CONFIG_SRCDIR([ggtl/ggtl.c])
-AC_CONFIG_HEADER([config/config.h])
 
 AM_INIT_AUTOMAKE([foreign])
 

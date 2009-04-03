@@ -20,15 +20,13 @@ This is a minimal GGTL extension used mainly in GGTL's test suite.
 
 */
 
-#include "nim.h"
-#include "config.h"
-
 #include <sl/sl.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <stddef.h>
 #include <string.h>
 
+#include "nim.h"
 
 /*
 
