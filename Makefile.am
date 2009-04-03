@@ -1,50 +1,49 @@
-# Always be strict about errors and warnings
-CFLAGS			= -W -Wall -Werror
-
-# Variables to be populated by included files
-man3_MANS		= 
-EXTRA_DIST		=
-CLEANFILES		= 
-
-include $(srcdir)/ggtl/makefile.mk
-include $(srcdir)/examples/makefile.mk
-
 if HAVE_LIBTAP
-include $(srcdir)/t/makefile.mk
+SUBDIRS = . t
 else
+SUBDIRS = .
 check-local:
 	@echo "****************************************"
 	@echo "libtap not installed; not running tests!"
 	@echo "****************************************"
 endif
 
-docs: $(man3_MANS)
+lib_LTLIBRARIES         = libggtl.la 
 
-%.man: %.pod
-	-mkdir -p $@ && rmdir $@
-	pod2man -r "$(PACKAGE_STRING)" -s 3 -c "GGTL Documentation" -n GGTL $< $@
+nobase_include_HEADERS  = ggtl/core.h \
+                          ggtl/nim.h \
+                          ggtl/reversi.h
+
+libggtl_la_CFLAGS       = -W -Wall -Werror
+libggtl_la_LDFLAGS      = -no-undefined \
+                          -release $(PACKAGE_VERSION)
+
+libggtl_la_SOURCES      = $(nobase_include_HEADERS) \
+                          ggtl.c \
+                          ggtl-nim.c \
+                          ggtl-reversi.c
+
+bin_PROGRAMS            = reversi-demo
+reversi_demo_SOURCES    = reversi-demo.c
+reversi_demo_LDADD      = libggtl.la
+
+
+
+# Documentation
+man_MANS                = ggtl.3 \
+                          ggtl-nim.3 \
+                          ggtl-reversi.3 \
+                          reversi-demo.3
+
 
 %.3: %.c
-	-mkdir -p $@ && rmdir $@
-	pod2man -r "$(PACKAGE_STRING)" -s 3 -c "GGTL Reference" -n GGTL $< $@
-
-FWOBJS		= ggtl.o ggtlai.o reversi.o
-FWHDRS		= ggtl/core.h ggtl/reversi.h
-FWROOT		= $(PACKAGE_NAME).framework
-FWDIR		= $(FWROOT)/Versions/$(PACKAGE_VERSION)
-FWHDRDIR	= $(FWDIR)/Headers
-FWLIB		= $(FWDIR)/$(PACKAGE_NAME)
-
-fw: $(libreversi_la_OBJECTS)
-	-rm -rf $(FWROOT) && mkdir -p $(FWHDRDIR)
-	cp $(FWHDRS) $(FWHDRDIR)
-	gcc -dynamiclib -o $(FWLIB) $(FWOBJS) \
-		-install_name "@executable_path/../Frameworks/$(FWLIB)" \
-		-framework sl
-	cd $(FWDIR)/.. && ln -sf $(PACKAGE_VERSION) Current 
-	cd $(FWROOT) && ln -sf Versions/Current/$(PACKAGE_NAME) .
+	pod2man -r "$(PACKAGE_STRING)" -s 3 -c "GGTL Reference" -n GGTL $< > $@
 
 
-EXTRA_DIST          += README ChangeLog
+# Distribution
 
-CLEANFILES          += $(man3_MANS)
+EXTRA_DIST          = README \
+                      ChangeLog
+
+CLEANFILES          = $(man_MANS) 
+

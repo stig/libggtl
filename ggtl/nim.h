@@ -12,10 +12,6 @@
 
 #include <ggtl/core.h>
 
-#ifdef __cplusplus      /* let C++ coders use this library */
-extern "C" {
-#endif
-
 struct nim_state {
   int player;
   int value;
@@ -29,13 +25,11 @@ struct nim_move {
 GGTL *nim_init(GGTL *g, void *s);
 struct nim_state *nim_state_new(int player, int val);
 struct nim_move *nim_move_new( int val );
-void *nim_move(void *s, void *m, GGTL *g);
-void *nim_unmove(void *s, void *m, GGTL *g);
+GGTL_STATE *nim_move(void *s, void *m, GGTL *g);
 GGTL_MOVE *nim_get_moves(void *s, GGTL *g);
 int nim_eval(void *state, GGTL *g);
 
-#ifdef __cplusplus
-}
-#endif
+
+
 #endif	/* !ggtl__nim_h */
 

@@ -5,7 +5,7 @@ use warnings;
 use Test::More tests => 34;
 
 local $/ = '';
-my @states = qx( ./reversi-demo )
+my @states = qx( ../reversi-demo )
   or die 'running reversi-demo failed';
 
 is shift @states, $_ while <DATA>;
