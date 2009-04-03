@@ -13,19 +13,18 @@ reversi-demo - a self-playing reversi demo using GGTL
 
 =head1 DESCRIPTION
 
-This shows how simple it is to create a self-playing Reversi (aka
-Othello) program with the GGTL L<reversi(3)> extension. If you
-have GGTL installed, a program called C<reversi-demo> should have
-been installed with it.
+L<reversi-demo(3)> is a tiny program using L<ggtl-reversi(3)> to
+create a self-playing Reversi (aka Othello) game.
 
 If invoked without arguments (or with only some of the arguments
-given), the defaults for SIZE, PLY and TRACEPLY are 6, 3, and -1.
+given), the defaults for SIZE, PLY and TRACEPLY are 6, 3, and
+-1.
 
 =head1 SOURCE
 
-The full source for C<reversi-demo> is:
+The full source for reversi-demo(3) is:
 
-=for */
+=pod */
 
   #include <stdio.h>
   #include <stdlib.h>
@@ -60,8 +59,7 @@ The full source for C<reversi-demo> is:
     do {
       reversi_state_draw(state);
       putchar('\n');
-      state = ggtl_ai_move(g);
-    } while (state);
+    } while (state = ggtl_ai_move(g));
   
     if (0 == ggtl_eval(g)) {
       puts("game ended in a draw");
@@ -75,22 +73,3 @@ The full source for C<reversi-demo> is:
     ggtl_free(g);
     return 0;
   }
-
-=for /*
-
-=head1 AUTHOR
-
-Stig Brautaset <stig@brautaset.org>
-
-=head1 COPYRIGHT
-
-Copyright (C) 2005 Stig Brautaset
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-=cut
-
-*/

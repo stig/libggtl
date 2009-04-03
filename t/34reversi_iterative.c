@@ -41,5 +41,5 @@ int main(void)
   } while (!ggtl_game_over(g));
 
   ggtl_free(g);
-  return exit_status();
+  return 0;
 }

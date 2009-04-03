@@ -4,7 +4,7 @@ use warnings;
 
 use Test::More tests => 9;
 
-my $state = `./t/reversi/move`;
+my $state = `./30reversi_move`;
 my @states = map { "$_\n" } split /\n\n/, $state;
 
 is( shift @states, <<"EOF" );

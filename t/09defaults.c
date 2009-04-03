@@ -21,5 +21,5 @@ int main(void)
   ok1( 2 == GET_KEYS - SET_KEYS);
 
   ggtl_free(g);
-  return exit_status();
+  return 0;
 }

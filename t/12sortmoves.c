@@ -1,9 +1,7 @@
 #include <tap.h>
 #include <stddef.h>
 #include <ggtl/core.h>
-#include <ggtl/private.h> /* cheat */
 #include <sl/sl.h>
-
 
 int main(void)
 {
@@ -27,7 +25,7 @@ int main(void)
   b->next = c;
   c->next = d;
 
-  a = sl_mergesort(a, fitness_cmp);
+  a = sl_mergesort(a, ggtl_mc_cmp);
   b = a->next;
   c = b->next;
   d = c->next;
@@ -37,5 +35,5 @@ int main(void)
   ok1( c->fitness == 0 );
   ok1( d->fitness == -10 );
   
-  return exit_status();
+  return 0;
 }

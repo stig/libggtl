@@ -4,13 +4,10 @@ use warnings;
 
 use Test::More tests => 3;
 
-local $/ = "\n\n";
-my @states = qx( ./t/nim/trace ) 
-  or die 'running trace helper failed';
+my $state = `./21nim_trace 2>&1`;
+my @states = map { "$_\n" } split /\n\n/, $state;
 
-is shift @states, $_ while <DATA>;
-
-__DATA__
+is( shift @states, <<"EOF" );
    leaf state: 1
     leaf state: 1
    a/b: -1/1
@@ -26,13 +23,17 @@ __DATA__
   a/b: 1/1 (2 branches skipped)
  a/b: -1/2147483637 (visited: 11)
 best branch: -1 (ply 3 search; 11 states visited)
+EOF
 
+is( shift @states, <<"EOF" );
   leaf state: 1
  a/b: -1/2147483637 (visited: 1)
    leaf state: 1
   a/b: -1/1
  a/b: 1/2147483637 (visited: 3)
 best branch: 1 (ply 3 search; 3 states visited)
+EOF
 
+is( shift @states, <<"EOF" );
 only one move possible (skipping search)
-
+EOF

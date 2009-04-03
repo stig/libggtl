@@ -1,9 +1,9 @@
 AC_PREREQ(2.59)
-AC_INIT(ggtl, 2.1.1, stig@brautaset.org)
+AC_INIT(ggtl, 1.99.4, stig@brautaset.org)
 
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIR([config])
-AC_CONFIG_SRCDIR([ggtl/ggtl.c])
+AC_CONFIG_SRCDIR([ggtl.c])
 AC_CONFIG_HEADER([config/config.h])
 
 AM_INIT_AUTOMAKE([foreign])
@@ -13,9 +13,8 @@ AC_PROG_CC
 AC_PROG_LIBTOOL
 
 # prove is used to summarize test results
-AC_CHECK_PROG(PROVE, prove, yes)
-AM_CONDITIONAL(HAVE_PROVE, test x$PROVE = xyes)
-
+AC_CHECK_PROG(PROVE, prove, 1)
+AM_CONDITIONAL(HAVE_PROVE, test x$PROVE = x1)
 
 # Libraries
 AC_CHECK_LIB(sl, sl_push, [], [ AC_MSG_ERROR([
@@ -34,5 +33,5 @@ AC_CHECK_FUNCS(gettimeofday)
 AC_HEADER_STDC
 AC_CHECK_HEADERS([sl/sl.h sys/time.h])
 
-AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([Makefile t/Makefile])
 AC_OUTPUT

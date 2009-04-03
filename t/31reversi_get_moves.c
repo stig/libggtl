@@ -69,5 +69,5 @@ int main(void)
   ok( ggtl_game_over(g), "game is over" );
 
   ggtl_free(g);
-	return exit_status();
+	return 0;
 }

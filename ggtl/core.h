@@ -11,10 +11,6 @@
 #ifndef ggtl__core_h
 #define ggtl__core_h
 
-#ifdef __cplusplus      /* let C++ coders use this library */
-extern "C" {
-#endif
-
 /* cache flags */
 #define STATES  1
 #define MOVES   2
@@ -43,10 +39,8 @@ enum {
 
 /* fitness limits */
 #include <limits.h>
-#define GGTL_FITNESS_MAX (INT_MAX-10)
-#define GGTL_FITNESS_MIN (-GGTL_FITNESS_MAX)
-#define FITNESS_MAX GGTL_FITNESS_MAX  /* backward compat */
-#define FITNESS_MIN GGTL_FITNESS_MIN  /* backward compat */
+#define FITNESS_MAX (INT_MAX-10)
+#define FITNESS_MIN (-FITNESS_MAX)
 
 typedef struct ggtl GGTL;
 
@@ -65,9 +59,7 @@ typedef struct ggtl_vtab {
   int (*eval)(void *, GGTL *);
   int (*game_over)(void *, GGTL *);
   GGTL_MOVE *(*get_moves)(void *, GGTL *);
-  void *(*move)(void *, void *, GGTL *);
-  void *(*unmove)(void *, void *, GGTL *);
-  void *(*clone_state)(void *, GGTL *);
+  GGTL_STATE *(*move)(void *, void *, GGTL *);
   void (*free_state)(void *);
   void (*free_move)(void *);
 } GGTL_VTAB;
@@ -88,24 +80,17 @@ GGTL_STATE *ggtl_move_internal(GGTL *g, GGTL_MOVE *m);
 GGTL_MOVE *ggtl_undo_internal(GGTL *g);
 void *ggtl_undo(GGTL *g);
 void ggtl_cache_states(GGTL *g, GGTL_STATE *state);
-void ggtl_cache_state(GGTL *g, void *state);
 void ggtl_cache_moves(GGTL *g, GGTL_MOVE *move);
-void ggtl_cache_move(GGTL *g, void *move);
 void ggtl_cache_free(GGTL *g);
-GGTL_STATE *ggtl_wrap_state(GGTL *g, void *s);
-GGTL_MOVE *ggtl_wrap_move(GGTL *g, void *m);
 GGTL_STATE *ggtl_uncache_state(GGTL *g);
 GGTL_MOVE *ggtl_uncache_move(GGTL *g);
-void *ggtl_uncache_state_raw(GGTL *g);
-void *ggtl_uncache_move_raw(GGTL *g);
 int ggtl_game_over(GGTL *g);
 int ggtl_eval(GGTL *g);
 void ggtl_free(GGTL *g);
+int ggtl_mc_cmp(void *anode, void *bnode);
+
 void ggtl_set(GGTL *g, int key, int value);
 int ggtl_get(GGTL *g, int key);
 
-#ifdef __cplusplus
-}
-#endif
 #endif	/* !ggtl__core_h */
 

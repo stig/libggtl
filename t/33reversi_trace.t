@@ -2,13 +2,17 @@
 use strict;
 use warnings;
 
-use Test::More tests => 34;
+use Test::More 'no_plan';
+
+my $states = `../reversi-demo`;
+my @states = split /\n\n/, $states;
 
 local $/ = '';
-my @states = qx( ./reversi-demo )
-  or die 'running reversi-demo failed';
-
-is shift @states, $_ while <DATA>;
+while (<DATA>) {
+  my $s = shift @states;
+  chomp $s; chomp $_;
+  is $s, $_;
+}
 
 __DATA__
 ......
