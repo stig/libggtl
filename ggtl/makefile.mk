@@ -1,5 +1,5 @@
 lib_LTLIBRARIES         = libggtl.la libnim.la libreversi.la
-ggtl_LDFLAGS            = -no-undefined -version-info 2:0:0
+ggtl_LDFLAGS            = -no-undefined -version-info 2:1:0
 
 
 libggtl_la_SOURCES      = ggtl/ggtl.c ggtl/ggtlai.c ggtl/private.h
