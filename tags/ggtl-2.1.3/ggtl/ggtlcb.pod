@@ -1,0 +1,120 @@
+=head1 NAME
+
+ggtlcb - GGTL callback functions
+
+=head1 SYNOPSIS
+
+  #include <ggtl/core.h>
+
+  ggtl_vtab(g)->eval      = &my_eval;
+  ggtl_vtab(g)->get_moves = &my_get_moves;
+
+=head1 DESCRIPTION
+
+GGTL is a generic implementation of the Alpha-Beta game-tree
+search algorithm. It must be provided with game-specific callback
+functions in order to perform operations such as executing a move
+and evaluating the fitness of a game state.
+
+The full list of callback functions is:
+
+=over
+
+=item void *move(void *state, void *mv, GGTL *g)
+
+Apply C<mv> to C<state>, producing the successor state. Return
+the pointer to the new state, or NULL on failure.  If the game
+allows pass moves, this function must understand them. It is has
+the responsibility of updating the indication on which player's
+turn it is (a property of the game state).
+
+C<g> is passed in so that you can benefit from GGTL's caches; 
+see e.g. C<ggtl_uncache_state()> and C<ggtl_uncache_state_raw()>.
+
+B<NOTE:> The prototype of this callback changed from v2.1.0. GGTL
+now expects the passed-in state to be modified. You should
+additionally implement I<either> the C<unmove()> or
+C<clone_state()> callbacks (for backwards compatibility you may
+omit both of these and return a new wrapped state as before--this
+behaviour is deprecated, however, and will likely dissapear in a
+later version).
+
+
+=item void *unmove(void *state, void *mv, GGTL *g)
+
+Optional callback to revert the passed-in move from the passed-in
+state (without taking a copy). By providing this callback GGTL
+will not keep a copy of each state for its undo-functionality.
+
+The callback should return a valid pointer on success and NULL on
+failure.
+
+
+=item void *clone_state(void *state, GGTL *g)
+
+Optional callback to clone C<state>. This is used to copy the
+current state before passing it to the C<move()> callback.  It
+should return a pointer to the cloned state or NULL on failure.
+
+
+=item int eval(void *state, GGTL *g)
+
+Should be implemented to calculate and return the fitness
+(MiniMax) value of C<state>. This value must be in the range
+C<GGTL_FITNESS_MIN> to C<GGTL_FITNESS_MAX>.
+
+
+=item GGTL_MOVE *get_moves(void *state, GGTL *g)
+
+Should return a list of all the moves available to the current
+player at the given state, or NULL if the game is over. Hence,
+if passing is allowed, a special 'pass move' must be returned.
+
+The C<ggtl_wrap_move()> function and the L<sl> manpage may come
+in handy.
+
+
+=item int game_over(void *state, GGTL *g)
+
+Optional callback to check for an end-state of the game.
+
+If specified, must return non-zero if C<state> is a final state
+in the current game. For example, some games automatically end
+after a certain number of moves; this can be simply represented
+by this function.
+
+Not all games need this callback; for many games it is enough to
+just let C<get_moves()> return NULL to signal that the game is
+over. 
+
+
+=item void free_state(void *state)
+
+=item void free_move(void *move)
+
+Optional callbacks for freeing up the memory held by a state and
+a move, respectively. This is rarely done, as GGTL caches moves
+and states agressively by default. You may chose to do so,
+however.
+
+You only have to worry about these if your states or moves 
+requires manual cleaning up. The standard C function
+C<free(3)|free> is used if you don't specify anything.
+
+=back
+
+
+=head1 AUTHOR
+
+Stig Brautaset <stig@brautaset.org>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005-2006 Stig Brautaset
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+=cut
