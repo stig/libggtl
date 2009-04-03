@@ -6,7 +6,6 @@
 #include <sl/sl.h>
 
 #include "core.h"
-#include "config.h"
 #include "private.h"
 
 static void state_cache_free(GGTL *g);
