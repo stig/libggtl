@@ -1,5 +1,5 @@
 AC_PREREQ(2.59)
-AC_INIT(ggtl, 2.1.1, stig@brautaset.org)
+AC_INIT(ggtl, 2.1.2, stig@brautaset.org)
 
 AC_CONFIG_AUX_DIR([config])
 AC_CONFIG_MACRO_DIR([config])

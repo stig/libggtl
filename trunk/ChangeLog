@@ -1,4 +1,4 @@
-ggtl 2.1.2 @ <not yet>
+ggtl 2.1.2 @ 2006-03-19
 
   * Allow sub-millisecond precision for iterative searches
   * Deprecated MSEC option in favour of the new TIME option; this
