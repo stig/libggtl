@@ -1,4 +1,4 @@
-#if 0
+/*
 
 =head1 NAME
 
@@ -8,18 +8,18 @@ GGTL-Reversi- GGTL extension for playing Reversi (aka Othello)
 
   #include <ggtl/reversi.h>
   
-  GGTL *reversi_init(GGTL *g, void *state);
+  GGTL *reversi_init(GGTL *g, void *s);
+  GGTL_STATE *reversi_state_clone(RState *s, GGTL *g);
   RMove *reversi_move_new(int x, int y, GGTL *g);
   RState *reversi_state_new(int size);
-  void reversi_state_draw(RState *state);
-  RStateCount reversi_state_count(RState *state);
+  void reversi_state_draw(RState *s);
+  RStateCount reversi_state_count(RState *s);
   
-  /* callback functions used by ggtl core */
-  void *reversi_state_clone(void *state, GGTL *g);
+  # callback functions used by ggtl core:
   int reversi_eval(void *state, GGTL *g);
   void reversi_state_free(void *state);
-  GGTL_MOVE *reversi_get_moves(void *state, GGTL *g);
-  void *reversi_move(void *s, void *mv, GGTL *g);
+  GGTL_MOVE *reversi_get_moves(void *s, GGTL *g);
+  GGTL_STATE *reversi_move(void *s, void *m, GGTL *g);
 
 See L<reversi-demo(3)|reversi-demo> for a complete example of a
 self-playing Reversi game using this extension.
@@ -65,9 +65,9 @@ Three data structures are used by this GGTL extension. They are:
 
 =cut
 
-#endif
+*/
 
-#include "reversi.h"
+#include "ggtl/reversi.h"
 #include "config.h"
 
 #include <sl/sl.h>
@@ -145,10 +145,11 @@ RState *reversi_state_new(int size)
 
 /*
 
-=item void *reversi_state_clone( void *s, GGTL *g )
+=item GGTL_STATE *reversi_state_clone( RState *s, GGTL *g )
 
-Clone the state C<s> (using a cached state from C<g> if
-available). Return the cloned state, or NULL on error. 
+Clone C<s>, using a cached state from C<g> if available. Return
+the cloned state wrapped in a C<GGTL_STATE>, or NULL on
+error. 
 
 It is assumed that cached states are the same size as the one
 being cloned.
@@ -157,17 +158,23 @@ being cloned.
 
 */
 
-void *reversi_state_clone( void *state, GGTL *g )
+GGTL_STATE *reversi_state_clone( RState *s, GGTL *g )
 {
-  RState *clone, *s = state;
+  RState *clone;
+  GGTL_STATE *node;
 
-  clone = ggtl_uncache_state_raw(g);
-  if (!clone) {
+  node = ggtl_uncache_state(g);
+  if (!node) {
     clone = reversi_state_new(s->size);
+    node = clone ? ggtl_sc_new(clone) : NULL;
+    if (!node) {
+      reversi_state_free(clone);
+    }
   }
 
-  if (clone) {
+  if (node) {
     int i, j;
+    clone = node->data;
     clone->player = s->player;
     for (i = 0; i < s->size; i++) {
       for (j = 0; j < s->size; j++) {
@@ -176,7 +183,7 @@ void *reversi_state_clone( void *state, GGTL *g )
     }
   }
 
-  return clone;
+  return node;
 }
 
 
@@ -245,17 +252,22 @@ otherwise, a new move will be allocated.
 GGTL_MOVE *reversi_move_new_wrapped(int x, int y, GGTL *g)
 {
   GGTL_MOVE *n;
-  RMove *m;
 
-  n = ggtl_uncache_move(g);
-  if (!n) {
-    n = ggtl_wrap_move(g, malloc(sizeof *m));
-    assert(n != NULL);
-    assert(n->data != NULL);
+  n = g ? ggtl_uncache_move(g) : NULL;
+  n = n ? n : ggtl_mc_new(NULL);
+  if (n) {
+    RMove *m;
+    n->data = n->data ? n->data : malloc(sizeof *m);
+    if (n->data) {
+      m = n->data;
+      m->x = x;
+      m->y = y;
+    }
+    else {
+      free(n);
+      n = NULL;
+    }
   }
-  m = n->data;
-  m->x = x;
-  m->y = y;
 
   return n;
 }
@@ -278,7 +290,6 @@ GGTL *reversi_init(GGTL *g, void *s)
   ggtl_vtab(g)->get_moves = &reversi_get_moves;
   ggtl_vtab(g)->eval = &reversi_eval;
   ggtl_vtab(g)->free_state = &reversi_state_free;
-  ggtl_vtab(g)->clone_state = &reversi_state_clone;
   
   return ggtl_init(g, s);
 }
@@ -345,8 +356,8 @@ int reversi_eval( void *state, GGTL *g )
   if (!moves) {
     counts = reversi_state_count(s);
     mine = counts.c[me] - counts.c[you];
-    return mine > 0 ? GGTL_FITNESS_MAX : 
-           mine < 0 ? GGTL_FITNESS_MIN : 0;
+    return mine > 0 ? FITNESS_MAX : 
+           mine < 0 ? FITNESS_MIN : 0;
   }
 
   mine = sl_count(moves);
@@ -367,7 +378,7 @@ int reversi_eval( void *state, GGTL *g )
 
 /*
 
-=item void *reversi_move( void *state, void *move, GGTL *g )
+=item GGTL_STATE *reversi_move( void *state, void *move, GGTL *g )
 
 Returns the state resulting from applying C<move> to C<state>, or
 NULL on failure.
@@ -376,11 +387,21 @@ NULL on failure.
 
 */
 
-void *reversi_move( void *state, void *move, GGTL *g )
+GGTL_STATE *reversi_move( void *state, void *move, GGTL *g )
 {
-  RMove *m = move;
-  (void)g;
-  return move_internal(state, m->x, m->y) ? state : NULL;
+  GGTL_STATE *node;
+
+  node = reversi_state_clone(state, g);
+  if (node) {
+    RMove *m = move;
+
+    if (!move_internal(node->data, m->x, m->y)) {
+      ggtl_cache_states(g, node);
+      node = NULL;
+    }
+  }
+
+  return node;
 }
 
 static int move_internal(RState *s, int x, int y)

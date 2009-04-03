@@ -33,11 +33,11 @@ typedef struct reversi_counts {
 
 /* ggtl/reversi.h */
 GGTL *reversi_init(GGTL *g, void *s);
-void *reversi_move(void *s, void *m, GGTL *g);
+GGTL_STATE *reversi_move(void *s, void *m, GGTL *g);
 GGTL_MOVE *reversi_get_moves(void *s, GGTL *g);
 int reversi_eval(void *state, GGTL *g);
 RState *reversi_state_new(int size);
-void *reversi_state_clone(void *s, GGTL *g);
+GGTL_STATE *reversi_state_clone(RState *s, GGTL *g);
 RMove *reversi_move_new(int x, int y);
 GGTL_MOVE *reversi_move_new_wrapped(int x, int y, GGTL *g);
 void reversi_state_free(void *state);

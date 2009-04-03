@@ -37,7 +37,7 @@ int main(void)
     ok( s = sc->data, "got state" );
   }
 
-  ok( s == state, "state is same as before" );
+  ok( s != state, "state is not same as before" );
   ok( s->player == 2, "player changed" );
   ok( s->value == 3, "move applied" );
   ok( m = ggtl_peek_move(g), "can peek at move now" );

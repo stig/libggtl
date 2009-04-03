@@ -20,7 +20,7 @@ This is a minimal GGTL extension used mainly in GGTL's test suite.
 
 */
 
-#include "nim.h"
+#include "ggtl/nim.h"
 #include "config.h"
 
 #include <sl/sl.h>
@@ -49,7 +49,6 @@ game.
 GGTL *nim_init(GGTL *g, void *s)
 {
   ggtl_vtab(g)->move = &nim_move;
-  ggtl_vtab(g)->unmove = &nim_unmove;
   ggtl_vtab(g)->get_moves = &nim_get_moves;
   ggtl_vtab(g)->eval = &nim_eval;
   
@@ -127,7 +126,7 @@ int nim_eval( void *state, GGTL *g )
 
 /*
 
-=item void *nim_move( void *state, void *move, GGTL *g )
+=item GGTL_STATE *nim_move( void *state, void *move, GGTL *g )
 
 Returns the state resulting from applying C<move> to C<state>, or
 NULL on failure.
@@ -136,41 +135,28 @@ NULL on failure.
 
 */
 
-void *nim_move( void *state, void *move, GGTL *g )
+GGTL_STATE *nim_move( void *state, void *move, GGTL *g )
 {
-  struct nim_state *s = state;
-  struct nim_move *m = move;
+  GGTL_STATE *node;
+  struct nim_state *s;
 
-  (void)g;
-  s->player = 3 - s->player;
-  s->value = s->value - m->value;
+  node = ggtl_uncache_state(g);
+  if (!node) {
+    s = malloc( sizeof(struct nim_state) );
+    node = s ? ggtl_sc_new(s) : NULL;
+  }
 
-  return s;
-}
-
-/*
-
-=item void *nim_unmove( void *state, void *move, GGTL *g )
-
-Returns the state resulting from reversing C<move> on C<state>, or
-NULL on failure.
-
-=cut
-
-*/
-
-void *nim_unmove( void *state, void *move, GGTL *g )
-{
-  struct nim_state *s = state;
-  struct nim_move *m = move;
+  if (node) {
+    struct nim_state *cur = state;
+    struct nim_move *m = move;
     
-  (void)g;
-  s->player = 3 - s->player;
-  s->value = s->value + m->value;
+    s = node->data;
+    s->player = 3 - cur->player;
+    s->value = cur->value - m->value;
+  }
 
-  return s;
+  return node;
 }
-
 
 /*
 
@@ -191,15 +177,13 @@ GGTL_MOVE *nim_get_moves( void *state, GGTL *g )
 
   moves = NULL;
   for (i = 1; i < 4 && i <= s->value; i++) {
-    struct nim_move *m = ggtl_uncache_move_raw(g);
-    GGTL_MOVE *n = ggtl_wrap_move(g, m);
+    struct nim_move *m = malloc( sizeof *m );
+    GGTL_MOVE *n = ggtl_uncache_move(g);
+    n = n ? n : malloc( sizeof *n );
     assert(n != NULL);
-
-    if (!m) {
-      n->data = m = malloc( sizeof *m );
-    }
     assert(m != NULL);
-
+    n->next = NULL;
+    n->data = m;
     m->value = i;
     moves = sl_push(moves, n);
   }
@@ -214,7 +198,7 @@ GGTL_MOVE *nim_get_moves( void *state, GGTL *g )
 
 =head1 SEE ALSO
 
-L<ggtl(3)|ggtl>, L<reversi(3)|reversi>
+L<ggtl(3)|ggtl>, L<ggtl-reversi(3)|ggtl-reversi>
 
 =head1 AUTHOR
 
