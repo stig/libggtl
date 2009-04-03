@@ -1,15 +1,13 @@
-#include "config.h"
-#include "core.h"
-#include "private.h"
-
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <sl/sl.h>
 
-static int ab(GGTL *g, int alpha, int beta, int ply);
+#include "config.h"
+#include "core.h"
+#include "private.h"
 
-typedef double ggtl_time_t;
+static int ab(GGTL *g, int alpha, int beta, int ply);
 
 #if HAVE_GETTIMEOFDAY
 
@@ -29,11 +27,13 @@ static ggtl_time_t setstarttime() {
 static ggtl_time_t setstarttime() {
   return time(NULL);
 }
+
 #endif
 
 static int havetimeleft(ggtl_time_t start, ggtl_time_t max)
 {
   ggtl_time_t elapsed = setstarttime() - start;
+  /* fprintf(stderr, "%lf < %lf\n", elapsed, max); */
   return elapsed < max;
 }
 
@@ -51,7 +51,10 @@ ggtlai - the various AIs supported by GGTL
   ggtl_set(g, TYPE, X);
 
   /* get the current AI */
-  ggtl_get(g, TYPE);
+  ggtl_getval(g, TYPE);
+
+  /* force a move */
+  ggtl_move(g, m);
 
   /* make the current AI perform a move */
   ggtl_ai_move(g);
@@ -249,7 +252,8 @@ GGTL_MOVE *ai_fixed(GGTL *g, GGTL_MOVE *moves)
 This AI performs an iterative deepening Alpha-Beta search to find
 the best possible move at the greatest depth that can be searched
 in a given time. The time allowed for a search can be set with
-C<ggtl_set(g, MSEC, value)>.
+C<ggtl_set()>; use C<ggtl_set(g, TIME, 0.350)> to set the allowed
+time to 350 milliseconds.
 
 =cut
 
@@ -277,7 +281,7 @@ GGTL_MOVE *ai_iterative(GGTL *g, GGTL_MOVE *moves)
       g->opts[PLY_REACHED] = ply;
     }
 
-    if (!havetimeleft(start, (ggtl_get(g, MSEC) / 2000.0))) {
+    if (!havetimeleft(start, g->time_to_search / 2.0)) {
       break;
     }
     

@@ -30,8 +30,10 @@ GGTL - Generic Game-Tree search Library
   void *ggtl_ai_move(GGTL *g);
   void *ggtl_undo(GGTL *g);
   
-  void ggtl_set(GGTL *g, int key, int value);
+  void ggtl_set(GGTL *g, int key, value);
   int ggtl_get(GGTL *g, int key);
+  void ggtl_setval(GGTL *g, int key, ...);
+  void ggtl_getval(GGTL *g, int key, ...);
   
   void *ggtl_peek_state(GGTL *g);
   void *ggtl_peek_move(GGTL *g);
@@ -151,12 +153,12 @@ GGTL *ggtl_new(void)
     }
     g->states = g->state_cache = g->sc_cache = NULL;
     g->moves = g->move_cache = g->mc_cache = NULL;
-    ggtl_set(g, CACHE, STATES | MOVES); /* cache both */
+    ggtl_setval(g, CACHE, STATES | MOVES); /* cache both */
 
-    ggtl_set(g, TYPE, ITERATIVE);   /* the fixed-depth AI */
-    ggtl_set(g, PLY, 3);            /* ply 3 */
-    ggtl_set(g, MSEC, 200);         /* 200 ms */
-    ggtl_set(g, TRACE, 0);          /* no trace output */
+    ggtl_setval(g, TYPE, ITERATIVE);   /* the fixed-depth AI */
+    ggtl_setval(g, PLY, 3);            /* ply 3 */
+    ggtl_setval(g, TIME, 0.2);         /* 200 ms */
+    ggtl_setval(g, TRACE, 0);          /* no trace output */
   }
   
   return g;
@@ -434,8 +436,21 @@ GGTL_MOVE *ggtl_undo_internal( GGTL *g )
 
 =item int ggtl_get( *g, int key )
 
-Sets and gets the value of the given key. The following keys are
-available:
+Simple way to set/get the value for a given key. Some key/value
+pairs are not available through the use of these functions; for
+those you need C<ggtl_setval()> and C<ggtl_getval()>.
+
+=item void ggtl_setval( *g, int key, value )
+
+=item void ggtl_getval( *g, int key, &value )
+
+Get/set the values of the given keys. In contrast to C<ggtl_set()>
+and C<ggtl_get()>, these functions can be used to set and retrieve
+the TIME parameter, which is a double-precision floating point
+number. Take care, however, to provide values of the correct type
+(by casting them if necessary), lest bad things will happen.
+
+The following keys are available:
 
 =over
 
@@ -447,40 +462,107 @@ void ggtl_set(GGTL *g, int key, int value)
 {
   assert(key >= 0);
   assert(key < SET_KEYS);
-  g->opts[key] = value;
+  assert(key != TIME);
+  if (key == MSEC) {
+    fputs("Warning: using MSEC is deprecated; use TIME instead.\n", stderr);
+    ggtl_setval(g, TIME, (double)value / 1000.0);
+  }
+  else {
+    ggtl_setval(g, key, (int)value);
+  }
 }
 
 int ggtl_get(GGTL *g, int key)
 {
+  int value;
   assert(key >= 0);
   assert(key < GET_KEYS);
-  return g->opts[key];
+  assert(key != TIME);
+  if (key == MSEC) {
+    double d;
+    fputs("Warning: using MSEC is deprecated; returning TIME * 1000 instead.\n", stderr);
+    ggtl_getval(g, TIME, &d);
+    value = d * 1000;
+  }
+  else {
+    ggtl_getval(g, key, &value);
+  }
+  return value;
+}
+
+
+
+void ggtl_setval(GGTL *g, int key, ...)
+{
+  va_list ap;
+  assert(key >= 0);
+  assert(key < SET_KEYS);
+  assert(key != MSEC);
+  
+  va_start(ap, key);
+  switch (key) {
+    case TIME:
+      g->time_to_search = va_arg(ap, double);
+      break;
+
+    default:
+      g->opts[key] = va_arg(ap, int);
+      break;
+  }
+  va_end(ap);
+}
+
+void ggtl_getval(GGTL *g, int key, ...)
+{
+  va_list ap;
+  assert(key >= 0);
+  assert(key < GET_KEYS);
+  assert(key != MSEC);
+  
+  va_start(ap, key);
+  switch (key) {
+    case TIME:
+      *va_arg(ap, double *) = g->time_to_search;
+      break;
+
+    default:
+      *va_arg(ap, int *) = g->opts[key];
+      break;
+  }
+  va_end(ap);
 }
 
 /*
 
-=item TYPE - the type of AI to use
+=item TYPE (int) - the type of AI to use
 
 See L<ggtlai(3)> for a description of the various types
 supported.
 
-=item MSEC
+=item MSEC [deprecated]
 
 The maximum time (in milliseconds) the iterative AI is allowed to
-use for a search.
+use for a search. B<This option is deprecated. Use `TIME` instead.>
 
-=item PLY
+=item TIME (double)
+
+The time to search, in seconds. This is a double-precision value,
+however, so by supplying a floating-point number you can get
+sub-millisecond granularity. This option is only available through
+the use of the new C<ggtl_setval()> and C<ggtl_getval()> functions.
+
+=item PLY (int)
 
 The depth to search to for the fixed-depth AI.
 
-=item TRACE
+=item TRACE (int)
 
 The level of trace information to print during search. The trace
 information will be printed to standard output. Zero (the
 default) turns off tracing; larger numbers give more detailed
 trace output.
 
-=item CACHE
+=item CACHE (int)
 
 Decide what to cache. If 0, GGTL will not cache anything. Other
 valid values are combinations of the following, ORed together:
@@ -491,13 +573,13 @@ valid values are combinations of the following, ORed together:
 Example: use C<ggtl_set(g, CACHE, STATES | MOVES)> to cache both
 moves and states (this is the default).
 
-=item VISITED - ggtl_get() only
+=item VISITED (int) - (getting only)
 
 Returns the number of states visited by the last AI search, or -1
 if no information is available. If no search has taken place, the
 value is undefined.
 
-=item PLY_REACHED - ggtl_get() only
+=item PLY_REACHED (int) - (getting only)
 
 Returns the effective depth of the last iterative AI search. The
 value is undefined if no such search has taken place.

@@ -1,3 +1,12 @@
+ggtl 2.1.2 @ <not yet>
+
+  * Allow sub-millisecond precision for iterative searches
+  * Deprecated MSEC option in favour of the new TIME option; this
+    takes a double-precision value in seconds, allowing for
+    sub-millisecond precision.
+  * Introduced new ggtl_getval() & ggtl_setval() functions capable
+    of setting/getting double-precision values (needed for TIME).
+
 ggtl 2.1.1 @ 2005-12-24
 
   * Documentation improvements
@@ -16,7 +25,9 @@ ggtl 2.1.0 @ 2005-08-03
   * the FITNESS_MIN and _MAX macros have a new GGTL_ prefix.
     the old versions will still work, but are deprecated
   * new `clone_state()` and `unmove()` callback support
-  * the move() callback should now modify the passed-in state
+  * the move() callback should now modify the passed-in state;
+    the old behaviour of making a copy and wrapping it in an sl
+    node is deprecated.
   * new functionality for states and moves:
     + cache unwrapped; `ggtl_cache_move()` and `ggtl_cache_state()`
     + uncache ununcacheped; `ggtl_uncache_state_raw()` and 

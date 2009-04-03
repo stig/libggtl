@@ -22,9 +22,10 @@ extern "C" {
 enum {          /* keys valid for ggtl_set() */
   TYPE = 0,     /* AI type */
   PLY,          /* depth for fixed-depth AI */
-  MSEC,         /* milliseconds for iterative AI */
+  MSEC,         /* milliseconds for iterative AI (deprecated in 2.1.2) */
   TRACE,        /* tracing level */
   CACHE,        /* what to cache */
+  TIME,		/* seconds (double) for iterative AI */
   SET_KEYS,
 };
 enum {          /* additional keys valid for ggtl_get() */
@@ -103,6 +104,8 @@ int ggtl_eval(GGTL *g);
 void ggtl_free(GGTL *g);
 void ggtl_set(GGTL *g, int key, int value);
 int ggtl_get(GGTL *g, int key);
+void ggtl_setval(GGTL *g, int key, ...);
+void ggtl_getval(GGTL *g, int key, ...);
 
 #ifdef __cplusplus
 }

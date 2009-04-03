@@ -20,7 +20,6 @@ int main(void)
     GGTL_MOVE *mc;
 
     ggtl_set(g, TYPE, ITERATIVE);
-    ok1( 200 == ggtl_get(g, MSEC) );
     ok1( ITERATIVE == ggtl_get(g, TYPE) );
 
     ok( s = ggtl_ai_move(g), "performed iterative search" );
