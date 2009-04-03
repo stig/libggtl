@@ -1,3 +1,9 @@
+ggtl 2.1.4 @ 2006-04-??
+
+  * Fallback to use `clock()` if `gettimeofday()` is not found. It
+    has better granularity than `time()` but has the disadvantage that
+    its accuracy will depend on the system load.
+
 ggtl 2.1.3 @ 2006-03-26
 
   * Changed to use `float` instead of `double` in the public interface 
