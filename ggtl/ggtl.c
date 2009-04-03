@@ -1,13 +1,13 @@
-#include "core.h"
-#include "config.h"
-#include "private.h"
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
 
 #include <sl/sl.h>
+
+#include "core.h"
+#include "config.h"
+#include "private.h"
 
 static void state_cache_free(GGTL *g);
 static void move_cache_free(GGTL *g);
