@@ -32,7 +32,6 @@ static ggtl_time_t setstarttime() {
 static int havetimeleft(ggtl_time_t start, ggtl_time_t max)
 {
   ggtl_time_t elapsed = setstarttime() - start;
-  /* fprintf(stderr, "%lf < %lf\n", elapsed, max); */
   return elapsed < max;
 }
 
@@ -50,7 +49,7 @@ ggtlai - the various AIs supported by GGTL
   ggtl_set(g, TYPE, X);
 
   /* get the current AI */
-  ggtl_getval(g, TYPE);
+  ggtl_get(g, TYPE);
 
   /* force a move */
   ggtl_move(g, m);

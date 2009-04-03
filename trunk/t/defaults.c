@@ -7,7 +7,6 @@
 int main(void)
 {
   GGTL *g;
-  double d;
 
   plan_tests(11);
   
@@ -18,13 +17,10 @@ int main(void)
   ok1( ITERATIVE == ggtl_get(g, TYPE) );
   ok1( 3 == ggtl_get(g, PLY) );
   ok1( abs(200 - ggtl_get(g, MSEC)) <= 1 );
-  
-  ggtl_getval(g, TIME, &d);
-  ok1( fabs(d) - 0.2 <= 0.0000001 );
+  ok1( fabs(ggtl_get_float(g, TIME) - 0.2) <= 0.0000001 );
     
   ggtl_set(g, MSEC, 350);
-  ggtl_getval(g, TIME, &d);
-  ok1( fabs(d) - 0.35 <= 0.0000001 );
+  ok1( fabs(ggtl_get_float(g, TIME) - 0.35) <= 0.0000001 );
   ok1( abs(350 - ggtl_get(g, MSEC)) <= 1 );
   
   ok1( 0 == ggtl_get(g, TRACE) );
