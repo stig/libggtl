@@ -29,6 +29,8 @@ doing so incurs no extra cost on your memory usage.
   #include <sl/sl.h>
   #include <stdio.h>
   #include <stdlib.h>
+  #include <assert.h>
+  #include <string.h>
 
 =for /*
 
@@ -98,11 +100,11 @@ they lead. Needless to say it wouldn't get very far doing this if
 it didn't know how to undo a move, so let's teach it how to do
 this.
 
-Depending on personal preference (or attributes of the game
-you're implementing) you may chose to implement either the
-C<unmove()> or C<clone_state()> callback. For Tic-Tac-Toe we could
-chose either, but let's pick the C<unmove()> method. It is very
-similar to the C<move()> callback:
+Depending on personal preference (or attributes of the game you're
+implementing) you may chose to implement either the C<unmove()> or
+C<clone_state()> callback. For Tic-Tac-Toe either one will do, but we
+will implement both for illustration purposes. First we have the
+C<unmove()> callback. It is very similar to C<move()>:
 
 =for */
 
@@ -120,6 +122,25 @@ similar to the C<move()> callback:
   }
 
 =for /*
+
+Next up we have the  C<clone_state()> callback:
+
+=for */
+
+  void *ttt_clone(void *st, GGTL *g)
+  {
+    ttt_state_t *copy = malloc(sizeof *copy);
+    assert(copy != NULL);
+    
+    (void)memmove(copy, st, sizeof *copy);
+    
+=for    (void)g;  /* avoid GCC warning */
+    
+    return copy;
+  }
+
+=for /*
+
 
 We now have everything needed for using GGTL simply as a history
 manager, keeping track of the current position whilst providing
@@ -267,7 +288,7 @@ checking.
 
 =for */
 
-  int main(void)
+  int main(int argc, char **argv)
   {
     GGTL *g = ggtl_new();
     ttt_state_t *s = calloc(1, sizeof *s);
@@ -277,9 +298,16 @@ checking.
   
     /* set the callback functions */
     ggtl_vtab(g)->move = ttt_move;
-    ggtl_vtab(g)->unmove = ttt_unmove;
     ggtl_vtab(g)->get_moves = ttt_getmoves;
     ggtl_vtab(g)->eval = ttt_eval;
+    if (argc > 1 && argv[1]) {
+        puts("Using unmove()\n");
+        ggtl_vtab(g)->unmove = ttt_unmove;
+    
+    } else {
+        puts("Using clone_state()\n");
+        ggtl_vtab(g)->clone_state = ttt_clone;
+    }
     
     ggtl_set(g, TYPE, FIXED); /* fixed-depth alpha-beta search */
     ggtl_set(g, PLY, 9);      /* nine-move look-ahead */

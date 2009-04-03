@@ -2,13 +2,16 @@
 use strict;
 use warnings;
 
-use Test::More tests => 22;
+use Test::More tests => 24;
 
 local $/ = '';
 my @states = qx( ./ttt-demo )
   or die 'running ttt-demo failed';
-my @states2 = qx( ./ttt-demo2 )
+my @states2 = qx( ./ttt-demo 1 )
   or die 'running ttt-demo2 failed';
+
+is shift @states, "Using clone_state()\n\n";
+is shift @states2, "Using unmove()\n\n";
 
 while (<DATA>) {
   is shift @states, $_;

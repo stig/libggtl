@@ -1,3 +1,8 @@
+ggtl 2.1.5 @ ?
+
+  * Fixed reference to non-existing callback state_copy() in ggtltut
+    (Thanks to Simya Divsh for bringing this to my attention)
+
 ggtl 2.1.4 @ 2006-12-21
 
   * Fallback to use `clock()` if `gettimeofday()` is not found. It
