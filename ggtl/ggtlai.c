@@ -11,25 +11,25 @@ static int ab(GGTL *g, int alpha, int beta, int ply);
 
 typedef double ggtl_time_t;
 
-#if HAVE_SYS_TIME_H && HAVE_GETTIMEOFDAY
+#if HAVE_GETTIMEOFDAY
+
+#if HAVE_SYS_TIME_H
 #include <sys/time.h>
-#else
-#include <time.h>
 #endif
 
-static ggtl_time_t setstarttime()
-{
-  ggtl_time_t now;
-
-#if HAVE_GETTIMEOFDAY
+static ggtl_time_t setstarttime() {
   struct timeval t;
   (void)gettimeofday(&t, NULL);
-  now = t.tv_sec + (t.tv_usec / 1000000.0);
-#else
-  now = time(NULL);
-#endif
-  return now;
+  return t.tv_sec + (t.tv_usec / 1000000.0);
 }
+
+#else
+
+#include <time.h>
+static ggtl_time_t setstarttime() {
+  return time(NULL);
+}
+#endif
 
 static int havetimeleft(ggtl_time_t start, ggtl_time_t max)
 {
