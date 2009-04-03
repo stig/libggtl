@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <sl/sl.h>
 
-#include "config.h"
 #include "core.h"
 #include "private.h"
 
