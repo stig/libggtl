@@ -10,7 +10,7 @@ ggtltut - a tutorial introduction to ggtl
 This article describes the steps involved in creating a
 self-playing Tic-Tac-Toe game using an AI provided by GGTL.
 
-The L<ggtlcb(3)> manpage describes the various callback
+The L<ggtlcb(3)|ggtlcb> manpage describes the various callback
 functions GGTL supports. Which ones you have to provide when
 implementing a game depends on the game in question, so the first
 thing to do is chose one. I've chosen Tic-Tac-Toe, as it is
