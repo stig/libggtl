@@ -9,32 +9,38 @@
 
 static int ab(GGTL *g, int alpha, int beta, int ply);
 
-typedef double ggtl_time_t;
-
-#if HAVE_GETTIMEOFDAY
-
-#if HAVE_SYS_TIME_H
+#if HAVE_SYS_TIME_H && HAVE_GETTIMEOFDAY
 #include <sys/time.h>
-#endif
-
-static ggtl_time_t setstarttime() {
-  struct timeval t;
-  (void)gettimeofday(&t, NULL);
-  return t.tv_sec + (t.tv_usec / 1000000.0);
-}
-
+typedef struct timeval ggtl_time_t;
 #else
-
 #include <time.h>
-static ggtl_time_t setstarttime() {
-  return time(NULL);
-}
+typedef time_t ggtl_time_t;
 #endif
 
-static int havetimeleft(ggtl_time_t start, ggtl_time_t max)
+static void setstarttime(ggtl_time_t *t)
 {
-  ggtl_time_t elapsed = setstarttime() - start;
-  return elapsed < max;
+#if HAVE_GETTIMEOFDAY
+  (void)gettimeofday(t, NULL);
+#else
+  *t = time(NULL);
+#endif
+}
+
+static int havetimeleft(ggtl_time_t start, long max)
+{
+#if HAVE_GETTIMEOFDAY
+  struct timeval now, elapsed, allowed;
+
+  gettimeofday(&now, NULL);
+  timersub(&now, &start, &elapsed);
+
+  allowed.tv_sec = (time_t)max / 1000;
+  allowed.tv_usec = (suseconds_t)(max % 1000) * 1000;
+
+  return timercmp(&allowed, &elapsed, >);
+#else
+  return ((time_t)max / 1000) < time(NULL) - start;
+#endif
 }
 
 #if 0
@@ -165,9 +171,7 @@ static int ab(GGTL *g, int alpha, int beta, int plytogo)
     }
 
     sc = -ab(g, -beta, -alpha, plytogo - 1);
-    if (sc > alpha) {
-      alpha = sc; 
-    }
+    alpha = max(alpha, sc);
     state = ggtl_undo(g);
     assert(state != NULL);
   }
@@ -263,7 +267,7 @@ GGTL_MOVE *ai_iterative(GGTL *g, GGTL_MOVE *moves)
 
   assert(1 < sl_count(moves));
   saved_ply = ggtl_get(g, PLY);
-  start = setstarttime();
+  setstarttime(&start);
 
   best = NULL;
   for (ply = 1;; ply++) { 
@@ -277,7 +281,7 @@ GGTL_MOVE *ai_iterative(GGTL *g, GGTL_MOVE *moves)
       g->opts[PLY_REACHED] = ply;
     }
 
-    if (!havetimeleft(start, (ggtl_get(g, MSEC) / 2000.0))) {
+    if (!havetimeleft(start, ggtl_get(g, MSEC) / 2)) {
       break;
     }
     
