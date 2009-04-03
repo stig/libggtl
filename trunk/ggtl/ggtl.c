@@ -908,6 +908,10 @@ but--as the name implies--programmed in Eiffel:
 
 Stig Brautaset <stig@brautaset.org>
 
+=head1 THANKS
+
+Thanks to Steven Goodwin for constructive comments.
+
 =head1 COPYRIGHT
 
 Copyright (C) 2005 Stig Brautaset
