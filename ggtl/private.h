@@ -1,7 +1,6 @@
 #ifndef _ggtl_private_h
 #define _ggtl_private_h
 
-#define max(a, b) (a) > (b) ? (a) : (b)
 #define GGTL_ERR (GGTL_FITNESS_MAX+1)
 
 struct ggtl {
