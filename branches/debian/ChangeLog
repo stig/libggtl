@@ -1,0 +1,159 @@
+ggtl 2.1.4 @ 2006-04-??
+
+  * Fallback to use `clock()` if `gettimeofday()` is not found. It
+    has better granularity than `time()` but has the disadvantage that
+    its accuracy will depend on the system load.
+
+ggtl 2.1.3 @ 2006-03-26
+
+  * Changed to use `float` instead of `double` in the public interface 
+    for the iterative search time.
+  * Renamed `ggtl_getval()` to `ggtl_get_float()` and `ggtl_setval()`
+    to `ggtl_set_float()` and changed the getter; the three-argument
+    form was horrible.
+    
+ggtl 2.1.2 @ 2006-03-19
+
+  * Allow sub-millisecond precision for iterative searches
+  * Deprecated MSEC option in favour of the new TIME option; this
+    takes a double-precision value in seconds, allowing for
+    sub-millisecond precision.
+  * Introduced new ggtl_getval() & ggtl_setval() functions capable
+    of setting/getting double-precision values (needed for TIME).
+  * Bumped library version number to 1:0:1
+  * Don't require a config.h header; pass in options on commandline.
+  * Removed documentation for functions deprecated in 2.1.0
+
+ggtl 2.1.1 @ 2005-12-24
+
+  * Documentation improvements
+  * Source tree reorg
+  * Build improvements; better deps, and killed recursive make
+  * Split the nim and reversi extentions out into their own libraries;
+    if you were using them, you'll have to link with -lnim or -lreversi
+    instead of -lggtl
+  * manpage names no longer have the 'ggtl-' prefix
+  * added example of how to write a TicTacToe game
+  * use .so name (with -version-name instead of -release)
+
+ggtl 2.1.0 @ 2005-08-03
+
+  Core library changes:
+  * the FITNESS_MIN and _MAX macros have a new GGTL_ prefix.
+    the old versions will still work, but are deprecated
+  * new `clone_state()` and `unmove()` callback support
+  * the move() callback should now modify the passed-in state;
+    the old behaviour of making a copy and wrapping it in an sl
+    node is deprecated.
+  * new functionality for states and moves:
+    + cache unwrapped; `ggtl_cache_move()` and `ggtl_cache_state()`
+    + uncache ununcacheped; `ggtl_uncache_state_raw()` and 
+      `ggtl_wrap_move_raw()`
+    + wrap; `ggtl_wrap_state()` and `ggtl_wrap_move()`
+  * deprecated `ggtl_sc_new()` and `ggtl_mc_new()`
+
+  Reversi extension changes: 
+  * provide a `clone_state()` callback and updated 
+    `move()` callback to this new interface
+
+  Nim extension changes:
+  * use an `unmove()` callback to roll back moves instead of
+    taking a copy of each historic state.
+  * updated `move()` callback to new interface
+
+ggtl 2.0.1 @ 2005-07-23
+
+  Minor changes including:
+  * small documentation fixes regarding containers
+  * removed duplicated prototype for ggtl_mc_cmp()
+  * added 'extern "C"' declarations to header files 
+    to help linking into C++ programs
+
+ggtl 2.0.0 @ 2005-07-16
+
+  Only minor changes since 1.99.5:
+  * re-arrange tests
+  * update version number
+
+ggtl 1.99.5 @ 2005-07-03
+
+  Many minor changes, including:
+  * consider warnings as errors
+  * plan number of tests we are running
+  * tidy up perl testing a bit
+  * return with exit_status() from tests
+  * config.h.in is generated. do not check it in
+  * documentation updates 
+  * use typedef GGTL_VTAB for 'struct ggtl_vtab'
+  * remove unnused variable
+  * do not check for sl header
+  * fix link in configure.ac 
+  * check for gettimeofday in addition to sys/time
+
+ggtl 1.99.4 @ 2005-06-05
+
+  * Added iterative deepening alpha-beta search. Uses
+    gettimeofday() if available, else falls back to use time() 
+  * ggtl_set()/ggtl_get() have replaced custom accessors
+  * added tests for default run-time config options
+  * added reversi trace test
+  * use typedefs for important datatypes, and document them better
+  * various code and documentation cleanups
+  * skip tests if libtap is not present
+  * fallback to running tests manually if 'prove' is not present
+
+ggtl 1.99.3 @ 2005-05-15
+
+  * Found and fixed a major bug in the alpha-beta search after
+    testing against human players. Turns out it is very important
+    to take the _first_ best move found in a search.
+  * Reversi fitness is now a function of both available moves and
+    captured pieces
+  * fixed move accounting for special case when search is skipped
+  * fixed bug that caused some tests to be skipped when building
+    out of the source tree
+  * fixed off-by-one bug in reversi move routine 
+  * added -W and -Wall compiler flags and fixed warnings 
+  * added some tests and performed some minor code cleanups
+
+ggtl 1.99.2 @ 2005-04-30
+
+  * Do not link ggtl with tap; use it only in the tests
+  * Killed a bug that prohibited re-use of cached moves in
+    the reversi extension. This caused it to use massive amounts
+    of memory.
+  * improve reversi-demo and add manpage for it
+  * make AI skip search when only 1 move is available
+  * kill duplication across the various AIs
+  * added tests for trace 
+  * clean up tests a bit and move to using recursive make for
+    them
+
+ggtl 1.99.1 @ 2005-04-16
+
+  The main change in this release was that the ggtl_list
+  container structure was split into the separate ggtl_mc and
+  ggtl_sc structures. This allows for a little stricter typing,
+  and makes it clearer what each function returns.
+
+  Other changes include:
+  * Added -release linker flag different versions can co-exist 
+  * Added -no-undefined linker flag to allow building on cygwin
+  * Added debian package generation
+  * Various documentation improvements
+
+ggtl 1.99 @ 2005-04-02
+
+  This is a GGTL 2.0 preview release. 
+
+  GGTL has been rewritten from the ground up to be more flexible,
+  more extendible, and easier to use. It now ships with
+  extensions for playing Reversi (of any size) and a very simple
+  variety of Nim. The code is now stable, but some features are
+  still missing and the API is still not entirely set in stone.
+
+  Regretfully, backward compatibility with previous versions had
+  to be sacrificed in order to meet the goals for this version.
+  Versions 1.x and 2.x can both be installed at the same time,
+  however, so updating programs to use the new version should be
+  relatively simple.

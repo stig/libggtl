@@ -1,0 +1,96 @@
+/*
+
+=head1 NAME
+
+reversi-demo - a self-playing reversi demo using GGTL 
+
+=head1 SYNOPSIS
+
+  reversi-demo 
+  reversi-demo SIZE 
+  reversi-demo SIZE PLY 
+  reversi-demo SIZE PLY TRACEPLY
+
+=head1 DESCRIPTION
+
+This shows how simple it is to create a self-playing Reversi (aka
+Othello) program with the GGTL L<reversi(3)> extension. If you
+have GGTL installed, a program called C<reversi-demo> should have
+been installed with it.
+
+If invoked without arguments (or with only some of the arguments
+given), the defaults for SIZE, PLY and TRACEPLY are 6, 3, and -1.
+
+=head1 SOURCE
+
+The full source for C<reversi-demo> is:
+
+=for */
+
+  #include <stdio.h>
+  #include <stdlib.h>
+  #include <ggtl/reversi.h>
+  
+  int main(int argc, char **argv)
+  {
+    RState *state;
+    GGTL *g;
+    int size;
+    int ply;
+    int trace;
+  
+    size = argc > 1 ? atoi(argv[1]) : 6;
+    ply = argc > 2 ? atoi(argv[2]) : 3;
+    trace = argc > 3 ? atoi(argv[3]) : 1;
+    if (size % 2) {
+      size++;
+    }
+  
+    state = reversi_state_new(size);
+    g = reversi_init(ggtl_new(), state);
+    ggtl_set(g, TYPE, FIXED);
+  
+    if (!g && !state) {
+      puts("cannot allocate enough memory");
+      return EXIT_FAILURE;
+    }
+  
+    ggtl_set(g, PLY, ply);
+    ggtl_set(g, TRACE, trace);
+    do {
+      reversi_state_draw(state);
+      putchar('\n');
+      state = ggtl_ai_move(g);
+    } while (state);
+  
+    if (0 == ggtl_eval(g)) {
+      puts("game ended in a draw");
+    }
+    else {
+      state = ggtl_peek_state(g);
+      printf("player %d %s\n", state->player, 
+        0 < ggtl_eval(g) ? "won" : "lost");
+    }
+  
+    ggtl_free(g);
+    return 0;
+  }
+
+=for /*
+
+=head1 AUTHOR
+
+Stig Brautaset <stig@brautaset.org>
+
+=head1 COPYRIGHT
+
+Copyright (C) 2005 Stig Brautaset
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+=cut
+
+*/
