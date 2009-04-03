@@ -13,7 +13,7 @@ ctests                 += t/defaults.t \
 ptests                 += t/ttt.t
 
 t_defaults_t_SOURCES    = t/defaults.c
-t_defaults_t_LDFLAGS    = -lggtl -ltap
+t_defaults_t_LDFLAGS    = -lggtl -ltap -lm
 
 t_cache_t_SOURCES       = t/cache.c
 t_cache_t_LDFLAGS       = -lggtl -ltap

@@ -3,6 +3,9 @@
 
 #define GGTL_ERR (GGTL_FITNESS_MAX+1)
 
+typedef double ggtl_time_t;
+
+
 struct ggtl {
   GGTL_VTAB *vtab;
 
@@ -15,6 +18,7 @@ struct ggtl {
 
   /* run-time options */
   int opts[GET_KEYS];
+  ggtl_time_t time_to_search;
 
   /* optimisation for end of search */
   int saw_end;
