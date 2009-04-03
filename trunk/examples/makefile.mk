@@ -19,3 +19,5 @@ man3_MANS            += examples/reversi-demo.man \
 
 EXTRA_DIST           += examples/reversi-demo.pod \
                         examples/ggtltut.pod
+
+CLEANFILES           += $(reversi_demo_SOURCES) $(ttt_demo_SOURCES)
