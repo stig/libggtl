@@ -171,7 +171,9 @@ static int ab(GGTL *g, int alpha, int beta, int plytogo)
     }
 
     sc = -ab(g, -beta, -alpha, plytogo - 1);
-    alpha = max(alpha, sc);
+    if (sc > alpha) {
+      alpha = sc; 
+    }
     state = ggtl_undo(g);
     assert(state != NULL);
   }
