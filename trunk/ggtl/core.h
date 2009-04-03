@@ -83,7 +83,6 @@ void *ggtl_peek_state(GGTL *g);
 void *ggtl_peek_move(GGTL *g);
 void *ggtl_move(GGTL *g, void *m);
 void *ggtl_ai_move(GGTL *g);
-int ggtl_ai_visited(GGTL *g);
 GGTL_MOVE *ggtl_get_moves(GGTL *g);
 GGTL_STATE *ggtl_move_internal(GGTL *g, GGTL_MOVE *m);
 GGTL_MOVE *ggtl_undo_internal(GGTL *g);
