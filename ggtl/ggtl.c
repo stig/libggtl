@@ -42,8 +42,6 @@ GGTL - Generic Game-Tree search Library
   int ggtl_game_over(GGTL *g);
   int ggtl_eval(GGTL *g);
   
-  GGTL_STATE *ggtl_sc_new(void *state);   [ deprecated ] 
-  GGTL_MOVE *ggtl_mc_new(void *move);     [ deprecated ]
   GGTL_STATE *ggtl_wrap_state(GGTL *g, void *state);
   GGTL_MOVE *ggtl_wrap_move(GGTL *g, void *move);
   
@@ -710,8 +708,6 @@ int ggtl_eval(GGTL *g)
 
 /*
 
-=item GGTL_STATE *ggtl_sc_new(void *state)  [deprecated]
-
 =item GGTL_STATE *ggtl_wrap_state(*g, void *state)
 
 Returns the state, wrapped in a C<GGTL_STATE> node,
@@ -749,8 +745,6 @@ GGTL_STATE *ggtl_wrap_state(GGTL *g, void *data)
 }
 
 /*
-
-=item GGTL_MOVE *ggtl_mc_new(void *move)  [deprecated]
 
 =item GGTL_MOVE *ggtl_wrap_move(*g, void *move)
 

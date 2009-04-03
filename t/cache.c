@@ -18,8 +18,8 @@ int main(void)
 
   {
     int m, m1, s, s1;
-    GGTL_STATE *sc = ggtl_sc_new(&s);
-    GGTL_MOVE *mc = ggtl_mc_new(&m);
+    GGTL_STATE *sc = ggtl_wrap_state(g, &s);
+    GGTL_MOVE *mc = ggtl_wrap_move(g, &m);
 
     ggtl_cache_states(g, sc);
     ggtl_cache_state(g, &s1);
