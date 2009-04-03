@@ -67,14 +67,13 @@ Three data structures are used by this GGTL extension. They are:
 
 #endif
 
-#include "reversi.h"
-#include "config.h"
-
 #include <sl/sl.h>
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "reversi.h"
 
 static int move_internal(RState *s, int x, int y);
 static int valid_move(RState *s, int me, int x, int y);
