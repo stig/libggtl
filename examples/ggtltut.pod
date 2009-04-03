@@ -1,6 +1,11 @@
 /*
 
-=head1 A TUTORIAL INTRODUCTION TO GGTL
+=head1 NAME
+
+ggtltut - a tutorial introduction to ggtl
+
+=head1 SYNOPSIS
+
 
 This article describes the steps involved in creating a
 self-playing Tic-Tac-Toe game using an AI provided by GGTL.
@@ -307,6 +312,10 @@ C<ttt-demo> if you have GGTL installed.
 =head1 AUTHOR
 
 Stig Brautaset <stig@brautaset.org>
+
+=head1 THANKS
+
+Kari Pahula (<kaol@iki.fi>) for providing a documentation patch.
 
 =head1 COPYRIGHT
 
