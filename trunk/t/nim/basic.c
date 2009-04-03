@@ -32,7 +32,7 @@ int main(void)
   { /* limit scope of n */
     GGTL_STATE *sc;
     GGTL_MOVE *mc;
-    ok1( mc = ggtl_mc_new(nim_move_new(2)) );
+    ok1( mc = ggtl_wrap_move(g, nim_move_new(2)) );
     ok( sc = ggtl_move_internal(g, mc), "got state node back" );
     ok( s = sc->data, "got state" );
   }
