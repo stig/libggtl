@@ -2,13 +2,18 @@
 use strict;
 use warnings;
 
-use Test::More tests => 11;
+use Test::More tests => 22;
 
 local $/ = '';
 my @states = qx( ./ttt-demo )
   or die 'running ttt-demo failed';
+my @states2 = qx( ./ttt-demo2 )
+  or die 'running ttt-demo2 failed';
 
-is shift @states, $_ while <DATA>;
+while (<DATA>) {
+  is shift @states, $_;
+  is shift @states2, $_;
+}
 
 __DATA__
 ...
