@@ -524,7 +524,7 @@ float ggtl_get_float(GGTL *g, int key)
 
 =item TYPE (int) - the type of AI to use
 
-See L<ggtlai(3)> for a description of the various types
+See L<ggtlai(3)|ggtlai> for a description of the various types
 supported.
 
 =item MSEC [deprecated]

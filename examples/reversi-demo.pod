@@ -14,7 +14,7 @@ reversi-demo - a self-playing reversi demo using GGTL
 =head1 DESCRIPTION
 
 This shows how simple it is to create a self-playing Reversi (aka
-Othello) program with the GGTL L<reversi(3)> extension. If you
+Othello) program with the GGTL L<reversi(3)|reversi> extension. If you
 have GGTL installed, a program called C<reversi-demo> should have
 been installed with it.
 
