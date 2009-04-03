@@ -14,7 +14,7 @@ static int ab(GGTL *g, int alpha, int beta, int ply);
 #include <sys/time.h>
 #endif
 
-static ggtl_time_t setstarttime() {
+static double setstarttime() {
   struct timeval t;
   (void)gettimeofday(&t, NULL);
   return t.tv_sec + (t.tv_usec / 1000000.0);
@@ -23,19 +23,19 @@ static ggtl_time_t setstarttime() {
 #else
 
 #include <time.h>
-static ggtl_time_t setstarttime() {
-  return time(NULL);
+static double setstarttime() {
+  return clock() / (double)CLOCKS_PER_SEC;
 }
 
 #endif
 
-static int havetimeleft(ggtl_time_t start, ggtl_time_t max)
+static int havetimeleft(double start, double max)
 {
-  ggtl_time_t elapsed = setstarttime() - start;
+  double elapsed = setstarttime() - start;
   return elapsed < max;
 }
 
-#if 0
+#if 0 /* C comments don't nest */
 
 =head1 NAME
 
@@ -261,7 +261,7 @@ GGTL_MOVE *ai_iterative(GGTL *g, GGTL_MOVE *moves)
 {
   GGTL_MOVE *best;
   int ply, saved_ply;
-  ggtl_time_t start;
+  double start;
 
   assert(1 < sl_count(moves));
   saved_ply = ggtl_get(g, PLY);
