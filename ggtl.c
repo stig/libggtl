@@ -1,6 +1,5 @@
-#include "core.h"
+#include "ggtl/core.h"
 #include "config.h"
-#include "private.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,8 +8,72 @@
 
 #include <sl/sl.h>
 
+#define max(a, b) (a) > (b) ? (a) : (b)
+#define GGTL_ERR (GGTL_FITNESS_MAX+1)
+
+struct ggtl {
+  GGTL_VTAB *vtab;
+
+  GGTL_STATE *state_cache;
+  GGTL_MOVE *move_cache;
+  GGTL_STATE *states;
+  GGTL_MOVE *moves;
+  GGTL_STATE *sc_cache;
+  GGTL_MOVE *mc_cache;
+
+  /* run-time options */
+  int opts[GET_KEYS];
+
+  /* optimisation for end of search */
+  int saw_end;
+};
+
+/* The various AIs */
+GGTL_MOVE *ai_none(GGTL *g, GGTL_MOVE *);
+GGTL_MOVE *ai_random(GGTL *g, GGTL_MOVE *);
+GGTL_MOVE *ai_fixed(GGTL *g, GGTL_MOVE *);
+GGTL_MOVE *ai_iterative(GGTL *g, GGTL_MOVE *);
+
+/* Helper functions */
+int ab(GGTL *g, int alpha, int beta, int ply);
+static void ai_trace(GGTL *g, int level, char *fmt, ...);
 static void state_cache_free(GGTL *g);
 static void move_cache_free(GGTL *g);
+
+
+#if HAVE_SYS_TIME_H && HAVE_GETTIMEOFDAY
+#include <sys/time.h>
+typedef struct timeval ggtl_time_t;
+#else
+#include <time.h>
+typedef time_t ggtl_time_t;
+#endif
+
+static void setstarttime(ggtl_time_t *t)
+{
+#if HAVE_GETTIMEOFDAY
+  (void)gettimeofday(t, NULL);
+#else
+  *t = time(NULL);
+#endif
+}
+
+static int havetimeleft(ggtl_time_t start, long max)
+{
+#if HAVE_GETTIMEOFDAY
+  struct timeval now, elapsed, allowed;
+
+  gettimeofday(&now, NULL);
+  timersub(&now, &start, &elapsed);
+
+  allowed.tv_sec = (time_t)max / 1000;
+  allowed.tv_usec = (suseconds_t)(max % 1000) * 1000;
+
+  return timercmp(&allowed, &elapsed, >);
+#else
+  return ((time_t)max / 1000) < time(NULL) - start;
+#endif
+}
 
 /*
 
@@ -55,8 +118,7 @@ GGTL - Generic Game-Tree search Library
   void *ggtl_uncache_state_raw(GGTL *g);
   void *ggtl_uncache_move_raw(GGTL *g);
   void ggtl_cache_free(GGTL *g);
-
-
+  
 =head1 DESCRIPTION
 
 GGTL exists to make it simple to create strategic games in C. The
@@ -65,8 +127,8 @@ perfect information.
 
 GGTL is not magic, however; it must be supplied with game-secific
 callback functions in order to work. More information about these
-callback functions can be found in the L<ggtlcb(3)|ggtlcb>
-manpage.
+callback functions can be found in the L<CALLBACK FUNCTIONS>
+section.
 
 The functions you have to care about when starting out using GGTL
 are: C<ggtl_new()>, C<ggtl_init()> and C<ggtl_vtab()> for setting
@@ -75,7 +137,7 @@ and C<ggtl_undo()> for use during the course of the game.
 
 GGTL ships with an extension for Reversi (aka Othello). This
 extension provides all the callbacks necessary in order to play
-Reversi (Othello). See L<reversi(3)|reversi> for its
+Reversi (Othello). See L<ggtl-reversi(3)|ggtl-reversi> for its
 manpage.
 
 =head1 DATA TYPES
@@ -102,7 +164,7 @@ C<GGTL_VTAB>. This is part of what makes GGTL flexible and
 generic; as long as suitable game-dependent functions are
 assigned to the entries in this structure GGTL's AI can play any
 2-player zero-sum game with perfect information. See also
-C<ggtl_vtab()> below and the L<ggtlcb(3)|ggtlcb> manpage.
+C<ggtl_vtab()> and L<CALLBACK FUNCTIONS> below.
 
 
 =head1 FUNCTIONS
@@ -209,7 +271,7 @@ GGTL *ggtl_init( GGTL *g, void *s )
 
 Returns a pointer to C<g>'s vtable. Pointers to all the callback
 functions used by GGTL are stored in this structure.  See
-the L<ggtlcb(3)|ggtlcb> manpage for details on each entry.
+L<CALLBACK FUNCTIONS> below for details on each entry.
 
 =cut
 
@@ -462,8 +524,235 @@ int ggtl_get(GGTL *g, int key)
 
 =item TYPE - the type of AI to use
 
-See L<ggtlai(3)> for a description of the various types
-supported.
+Takes the following values:
+
+=over
+
+=item NONE
+
+Always picks the first move returned by the get_moves()
+callback; may be useful for testing.
+
+=cut
+
+*/
+
+GGTL_MOVE *ai_none(GGTL *g, GGTL_MOVE *moves)
+{
+  GGTL_MOVE *move;
+
+  assert(1 < sl_count(moves));
+
+  move = sl_pop(&moves);
+  ggtl_cache_moves(g, moves);
+
+  return move;
+}
+
+/*
+
+=item RANDOM
+
+Picks one of the available moves at random.
+It is the responsibility of the user to call srand() to make sure
+the random generator is seeded differently for each run.
+
+=cut
+
+*/
+
+GGTL_MOVE *ai_random(GGTL *g, GGTL_MOVE *moves)
+{
+  GGTL_MOVE *move;
+  int idx;
+  
+  assert(1 < sl_count(moves));
+
+  idx = rand() % sl_count(moves);
+  while (idx--) {
+    ggtl_cache_moves(g, sl_pop(&moves));
+  }
+  move = sl_pop(&moves);
+  ggtl_cache_moves(g, moves);
+
+  assert(move != NULL);
+
+  return move;
+}
+
+/*
+
+=item FIXED 
+
+Performs a fixed-depth Alpha-Beta search to find the best move at
+a given ply (depth in the game tree). The depth to be searched
+can be set with C<ggtl_set(g, PLY, depth)>.
+
+=cut
+
+*/
+
+int ggtl_mc_cmp(void *anode, void *bnode)
+{
+  GGTL_MOVE *a = anode;
+  GGTL_MOVE *b = bnode;
+  return b->fitness - a->fitness;
+}
+
+int ab(GGTL *g, int alpha, int beta, int plytogo)
+{
+  GGTL_MOVE *moves, *m;
+  int tracelevel = ggtl_get(g, PLY) - plytogo + 2;
+
+  g->opts[VISITED]++;
+  
+  moves = ggtl_get_moves(g);
+  if (!moves || plytogo <= 0) {
+    int fitness;
+    if (!moves) { g->saw_end = 1; }
+    else { ggtl_cache_moves(g, moves); }
+    fitness = ggtl_vtab(g)->eval(ggtl_peek_state(g), g);
+    ai_trace(g, tracelevel, "%s: %d", 
+      moves ? "ply limit" : "leaf state", fitness);
+    return fitness;
+  }
+  
+  while (alpha < beta && (m = sl_pop(&moves))) {
+    int sc;
+    void *state;
+
+    if (!ggtl_move_internal(g, m)) {
+      ggtl_cache_moves(g, m);
+      alpha = GGTL_ERR;
+      break;
+    }
+
+    sc = -ab(g, -beta, -alpha, plytogo - 1);
+    alpha = max(alpha, sc);
+    state = ggtl_undo(g);
+    assert(state != NULL);
+  }
+
+  {
+    char skipped[50] = {0};
+    if (moves) {
+      int count = sl_count(moves);
+      char *plural = count == 1 ? "" : "es";
+      sprintf(skipped, " (%d branch%s skipped)", count, plural);
+    }
+    ai_trace(g, tracelevel, "a/b: %d/%d%s", alpha, beta, skipped);
+  }
+
+  /* if we broke out of the loop early, 
+     cache the rest of the moves */
+  ggtl_cache_moves(g, moves);
+
+  return alpha;
+}
+
+GGTL_MOVE *ai_fixed(GGTL *g, GGTL_MOVE *moves)
+{
+  GGTL_STATE *state;
+  GGTL_MOVE *m, *best;
+  int alpha, beta;
+
+  assert(1 < sl_count(moves));
+
+  alpha = GGTL_FITNESS_MIN-1;  /* loss should be better than this */
+  beta = GGTL_FITNESS_MAX;
+
+  state = NULL;
+  best = NULL;
+  while ((m = sl_pop(&moves))) {
+    if (ggtl_move_internal(g, m)) {
+      int sc = -ab(g, -beta, -alpha, ggtl_get(g, PLY) - 1);
+      ai_trace(g, 2, "a/b: %d/%d (visited: %d)", sc, beta,
+        ggtl_get(g, VISITED));
+      m = ggtl_undo_internal(g); 
+
+      /* It is important that the _first_ move to be found with
+       * the given alpha-beta value is picked, as latter ones
+       * might be worse (since they might be victims of cutoffs).  */
+      if (sc > alpha) {
+        GGTL_MOVE *tmp = best;
+        best = m;
+        m = tmp;
+        alpha = sc;
+      }
+      ggtl_cache_moves(g, m);
+    }
+    else {
+      ggtl_cache_moves(g, m);
+      ggtl_cache_moves(g, moves);
+      ggtl_cache_moves(g, best);
+      return NULL;
+    }
+      
+    assert(alpha != GGTL_ERR);
+  }
+  assert(best != NULL);
+  m = best;
+
+  ggtl_cache_moves(g, moves);
+  
+  ai_trace(g, 1, 
+    "best branch: %d (ply %d search; %d states visited)",
+    alpha, ggtl_get(g, PLY), ggtl_get(g, VISITED));
+
+  return m;
+}
+
+
+/*
+
+=item ITERATIVE
+
+This AI performs an iterative deepening Alpha-Beta search to find
+the best possible move at the greatest depth that can be searched
+in a given time. The time allowed for a search can be set with
+C<ggtl_set(g, MSEC, value)>.
+
+=cut
+
+*/
+
+GGTL_MOVE *ai_iterative(GGTL *g, GGTL_MOVE *moves)
+{
+  GGTL_MOVE *best;
+  int ply, saved_ply;
+  ggtl_time_t start;
+
+  assert(1 < sl_count(moves));
+  saved_ply = ggtl_get(g, PLY);
+  setstarttime(&start);
+
+  best = NULL;
+  for (ply = 1;; ply++) { 
+    GGTL_MOVE *m;
+
+    ggtl_set(g, PLY, ply);
+    m = ai_fixed(g, moves);
+    if (m) {
+      ggtl_cache_moves(g, best);
+      best = m;
+      g->opts[PLY_REACHED] = ply;
+    }
+
+    if (!havetimeleft(start, ggtl_get(g, MSEC) / 2)) {
+      break;
+    }
+    
+    moves = ggtl_get_moves(g);
+  }
+  ggtl_set(g, PLY, saved_ply);
+
+  return best;
+}
+
+
+/*
+
+=back
 
 =item MSEC
 
@@ -510,7 +799,7 @@ value is undefined if no such search has taken place.
 */
 
 
-void ai_trace(GGTL *g, int depth, char *fmt, ...)
+static void ai_trace(GGTL *g, int depth, char *fmt, ...)
 {
   va_list ap;
   if (ggtl_get(g, TRACE) >= depth) {
@@ -734,10 +1023,8 @@ to cache.
 
 =item void ggtl_cache_move( *g, void *move )
 
-Put states and moves onto their respective caches. The pluralised
-versions take a list of nodes, the singular ones takes a pointer
-to a bare state or move and caches that.  Remember that a list
-can have one or more elements.
+Put a list of states or moves onto their respective cache.
+Remember that a list can have only one element.
 
 Note: these functions change behaviour depending on the cache
 flag (see C<ggtl_cache()>). If it is turned off for the given
@@ -874,6 +1161,113 @@ static void move_cache_free(GGTL *g)
 
 =back
 
+=head1 CALLBACK FUNCTIONS
+
+GGTL is a generic implementation of the Alpha-Beta game-tree
+search algorithm. It must be provided with game-specific callback
+functions in order to perform operations such as executing a move
+and evaluating the fitness of a game state.
+
+Setting the callback functions can be done thusly:
+
+  ggtl_vtab(g)->eval      = &my_eval;
+  ggtl_vtab(g)->get_moves = &my_get_moves;
+
+The full list of callback functions is:
+
+=over
+
+=item void *move(void *state, void *mv, GGTL *g)
+
+Apply C<mv> to C<state>, producing the successor state. Return
+the pointer to the new state, or NULL on failure.  If the game
+allows pass moves, this function must understand them. It is has
+the responsibility of updating the indication on which player's
+turn it is (a property of the game state).
+
+C<g> is passed in so that you can benefit from GGTL's caches; 
+see e.g. C<ggtl_uncache_state()> and C<ggtl_uncache_state_raw()>.
+
+B<NOTE:> The prototype of this callback changed from v2.1.0. GGTL
+now expects the passed-in state to be modified. You should
+additionally implement I<either> the C<unmove()> or
+C<clone_state()> callbacks (for backwards compatibility you may
+omit both of these and return a new wrapped state as before--this
+behaviour is deprecated, however, and will likely dissapear in a
+later version).
+
+
+
+=item void *unmove(void *state, void *mv, GGTL *g)
+
+Optional callback to revert the passed-in move from the passed-in
+state (without taking a copy). By providing this callback GGTL
+will not keep a copy of each state for its undo-functionality.
+
+The callback should return a valid pointer on success and NULL on
+failure.
+
+
+
+=item void *clone_state(void *state, GGTL *g)
+
+Optional callback to clone C<state>. This is used to copy the
+current state before passing it to the C<move()> callback.  It
+should return a pointer to the cloned state or NULL on failure.
+
+
+
+=item int eval(void *state, GGTL *g)
+
+Should be implemented to calculate and return the fitness
+(MiniMax) value of C<state>. This value must be in the range
+C<GGTL_FITNESS_MIN> to C<GGTL_FITNESS_MAX>.
+
+
+
+=item GGTL_MOVE *get_moves(void *state, GGTL *g)
+
+Should return a list of all the moves available to the current
+player at the given state, or NULL if the game is over. Hence,
+if passing is allowed, a special 'pass move' must be returned.
+
+The C<ggtl_wrap_move()> function and the L<sl> manpage may come
+in handy.
+
+
+
+=item int game_over(void *state, GGTL *g)
+
+Optional callback to check for an end-state of the game.
+
+If specified, must return non-zero if C<state> is a final state
+in the current game. For example, some games automatically end
+after a certain number of moves; this can be simply represented
+by this function.
+
+Not all games need this callback; for many games it is enough to
+just let C<get_moves()> return NULL to signal that the game is
+over. 
+
+
+
+=item void free_state(void *state)
+
+=item void free_move(void *move)
+
+Optional callbacks for freeing up the memory held by a state and
+a move, respectively. This is rarely done, as GGTL caches moves
+and states agressively by default. You may chose to do so,
+however.
+
+You only have to worry about these if your states or moves 
+requires manual cleaning up. The standard C function
+C<free(3)|free> is used if you don't specify anything.
+
+=back
+
+
+
 =head1 GGTL (AB)USE
 
 GGTL can be used even if your game is not one of those that
@@ -886,18 +1280,7 @@ Investigate feasibility of supporting A* search as well.
 
 =head1 SEE ALSO
 
-L<ggtltut(3)|ggtltut> shows how to implement a simple Tic-Tac-Toe
-game using GGTL.
-
-See L<ggtlai(3)|ggtlai> for the various AIs supported by
-C<ggtl_ai_move()>. 
-
-L<ggtlcb(3)|ggtlcb> documents the callback functions required by
-GGTL to support game-tree search for a whole range of games.
-
-L<reversi(3)|reversi> E<amp> L<nim(3)|nim> documents extensions
-to GGTL providing all the callbacks necessary to implement
-Reversi and Nim.
+L<ggtl-reversi(3)|ggtl-reversi> E<amp> L<ggtl-nim(3)|ggtl-reversi>.
 
 I<Generic Game Framework in Eiffel> (G2F3) is a related project,
 but--as the name implies--programmed in Eiffel:
@@ -920,4 +1303,3 @@ the Free Software Foundation; either version 2 of the License, or
 =cut
 
 */
-

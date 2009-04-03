@@ -20,7 +20,7 @@ This is a minimal GGTL extension used mainly in GGTL's test suite.
 
 */
 
-#include "nim.h"
+#include "ggtl/nim.h"
 #include "config.h"
 
 #include <sl/sl.h>
@@ -214,7 +214,7 @@ GGTL_MOVE *nim_get_moves( void *state, GGTL *g )
 
 =head1 SEE ALSO
 
-L<ggtl(3)|ggtl>, L<reversi(3)|reversi>
+L<ggtl(3)|ggtl>, L<ggtl-reversi(3)|ggtl-reversi>
 
 =head1 AUTHOR
 

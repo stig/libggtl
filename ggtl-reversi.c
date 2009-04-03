@@ -67,7 +67,7 @@ Three data structures are used by this GGTL extension. They are:
 
 #endif
 
-#include "reversi.h"
+#include "ggtl/reversi.h"
 #include "config.h"
 
 #include <sl/sl.h>

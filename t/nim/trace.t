@@ -5,7 +5,7 @@ use warnings;
 use Test::More tests => 3;
 
 local $/ = "\n\n";
-my @states = qx( ./t/nim/trace ) 
+my @states = qx( ./nim/trace ) 
   or die 'running trace helper failed';
 
 is shift @states, $_ while <DATA>;

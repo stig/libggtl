@@ -101,6 +101,8 @@ void *ggtl_uncache_move_raw(GGTL *g);
 int ggtl_game_over(GGTL *g);
 int ggtl_eval(GGTL *g);
 void ggtl_free(GGTL *g);
+int ggtl_mc_cmp(void *anode, void *bnode);
+
 void ggtl_set(GGTL *g, int key, int value);
 int ggtl_get(GGTL *g, int key);
 
