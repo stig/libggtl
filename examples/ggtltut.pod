@@ -100,7 +100,7 @@ this.
 
 Depending on personal preference (or attributes of the game
 you're implementing) you may chose to implement either the
-C<unmove()> or C<copy_state()> callback. For Tic-Tac-Toe we could
+C<unmove()> or C<clone_state()> callback. For Tic-Tac-Toe we could
 chose either, but let's pick the C<unmove()> method. It is very
 similar to the C<move()> callback:
 
