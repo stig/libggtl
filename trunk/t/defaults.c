@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdlib.h>
 
 #include <tap.h>
 #include <ggtl/core.h>
@@ -16,7 +17,7 @@ int main(void)
   ok1( 6 == SET_KEYS );
   ok1( ITERATIVE == ggtl_get(g, TYPE) );
   ok1( 3 == ggtl_get(g, PLY) );
-  ok1( 200 == ggtl_get(g, MSEC) );
+  ok1( abs(200 - ggtl_get(g, MSEC)) <= 1 );
   
   ggtl_getval(g, TIME, &d);
   ok1( fabs(d) - 0.2 <= 0.0000001 );
@@ -24,7 +25,7 @@ int main(void)
   ggtl_set(g, MSEC, 350);
   ggtl_getval(g, TIME, &d);
   ok1( fabs(d) - 0.35 <= 0.0000001 );
-  ok1( 350 == ggtl_get(g, MSEC) );
+  ok1( abs(350 - ggtl_get(g, MSEC)) <= 1 );
   
   ok1( 0 == ggtl_get(g, TRACE) );
   ok1( (STATES | MOVES) == ggtl_get(g, CACHE) );
