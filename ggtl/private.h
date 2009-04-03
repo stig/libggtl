@@ -5,7 +5,6 @@
 
 typedef double ggtl_time_t;
 
-
 struct ggtl {
   GGTL_VTAB *vtab;
 

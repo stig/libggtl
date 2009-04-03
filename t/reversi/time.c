@@ -19,7 +19,7 @@ int main(void)
 
     ok( g = reversi_init(ggtl_new(), reversi_state_new(size)), "setup ok" );
     ggtl_set(g, TYPE, ITERATIVE);
-    ggtl_setval(g, TIME, ply / 10.0);
+    ggtl_set_float(g, TIME, ply / 10.0);
 
     start = time(NULL);
     while (ggtl_ai_move(g))

@@ -30,10 +30,10 @@ GGTL - Generic Game-Tree search Library
   void *ggtl_ai_move(GGTL *g);
   void *ggtl_undo(GGTL *g);
   
-  void ggtl_set(GGTL *g, int key, value);
+  void ggtl_set(GGTL *g, int key, int value);
   int ggtl_get(GGTL *g, int key);
-  void ggtl_setval(GGTL *g, int key, ...);
-  void ggtl_getval(GGTL *g, int key, ...);
+  void ggtl_set_float(GGTL *g, int key, float value);
+  float ggtl_get_float(GGTL *g, int key);
   
   void *ggtl_peek_state(GGTL *g);
   void *ggtl_peek_move(GGTL *g);
@@ -151,12 +151,12 @@ GGTL *ggtl_new(void)
     }
     g->states = g->state_cache = g->sc_cache = NULL;
     g->moves = g->move_cache = g->mc_cache = NULL;
-    ggtl_setval(g, CACHE, STATES | MOVES); /* cache both */
+    ggtl_set(g, CACHE, STATES | MOVES); /* cache both */
 
-    ggtl_setval(g, TYPE, ITERATIVE);   /* the fixed-depth AI */
-    ggtl_setval(g, PLY, 3);            /* ply 3 */
-    ggtl_setval(g, TIME, 0.2);         /* 200 ms */
-    ggtl_setval(g, TRACE, 0);          /* no trace output */
+    ggtl_set(g, TYPE, ITERATIVE);   /* the fixed-depth AI */
+    ggtl_set(g, PLY, 3);            /* ply 3 */
+    ggtl_set_float(g, TIME, 0.2);   /* 200 ms */
+    ggtl_set(g, TRACE, 0);          /* no trace output */
   }
   
   return g;
@@ -436,17 +436,17 @@ GGTL_MOVE *ggtl_undo_internal( GGTL *g )
 
 Simple way to set/get the value for a given key. Some key/value
 pairs are not available through the use of these functions; for
-those you need C<ggtl_setval()> and C<ggtl_getval()>.
+those you need C<ggtl_set_float()> and C<ggtl_get_float()>.
 
-=item void ggtl_setval( *g, int key, value )
+=item void ggtl_set_float( *g, int key, float value )
 
-=item void ggtl_getval( *g, int key, &value )
+=item float ggtl_get_float( *g, int key )
 
 Get/set the values of the given keys. In contrast to C<ggtl_set()>
 and C<ggtl_get()>, these functions can be used to set and retrieve
-the TIME parameter, which is a double-precision floating point
-number. Take care, however, to provide values of the correct type
-(by casting them if necessary), lest bad things will happen.
+the TIME parameter, which is a floating point number. Take care,
+however, to provide values of the correct type (by casting them if
+necessary), lest bad things will happen.
 
 The following keys are available:
 
@@ -463,10 +463,10 @@ void ggtl_set(GGTL *g, int key, int value)
   assert(key != TIME);
   if (key == MSEC) {
     fputs("Warning: using MSEC is deprecated; use TIME instead.\n", stderr);
-    ggtl_setval(g, TIME, (double)value / 1000.0);
+    ggtl_set_float(g, TIME, value / 1000.0);
   }
   else {
-    ggtl_setval(g, key, (int)value);
+    g->opts[key] = value;
   }
 }
 
@@ -477,57 +477,25 @@ int ggtl_get(GGTL *g, int key)
   assert(key < GET_KEYS);
   assert(key != TIME);
   if (key == MSEC) {
-    double d;
-    fputs("Warning: using MSEC is deprecated; returning TIME * 1000 instead.\n", stderr);
-    ggtl_getval(g, TIME, &d);
-    value = d * 1000;
+    fputs("Warning: using MSEC is deprecated; use TIME instead.\n", stderr);
+    value = (int)(ggtl_get_float(g, TIME) * 1000);
   }
   else {
-    ggtl_getval(g, key, &value);
+    value = g->opts[key];
   }
   return value;
 }
 
-
-
-void ggtl_setval(GGTL *g, int key, ...)
+void ggtl_set_float(GGTL *g, int key, float f)
 {
-  va_list ap;
-  assert(key >= 0);
-  assert(key < SET_KEYS);
-  assert(key != MSEC);
-  
-  va_start(ap, key);
-  switch (key) {
-    case TIME:
-      g->time_to_search = va_arg(ap, double);
-      break;
-
-    default:
-      g->opts[key] = va_arg(ap, int);
-      break;
-  }
-  va_end(ap);
+  assert(key == TIME);  
+  g->time_to_search = f;
 }
 
-void ggtl_getval(GGTL *g, int key, ...)
+float ggtl_get_float(GGTL *g, int key)
 {
-  va_list ap;
-  assert(key >= 0);
-  assert(key < GET_KEYS);
-  assert(key != MSEC);
-  
-  va_start(ap, key);
-  switch (key) {
-    case TIME:
-      *va_arg(ap, double *) = g->time_to_search;
-      break;
-
-    default:
-      *va_arg(ap, int *) = g->opts[key];
-      break;
-  }
-  va_end(ap);
+  assert(key == TIME);
+  return g->time_to_search;
 }
 
 /*
@@ -542,12 +510,12 @@ supported.
 The maximum time (in milliseconds) the iterative AI is allowed to
 use for a search. B<This option is deprecated. Use `TIME` instead.>
 
-=item TIME (double)
+=item TIME (float)
 
-The time to search, in seconds. This is a double-precision value,
-however, so by supplying a floating-point number you can get
-sub-millisecond granularity. This option is only available through
-the use of the new C<ggtl_setval()> and C<ggtl_getval()> functions.
+The time to search in seconds. This is a floating-point value so
+you can get sub-millisecond granularity. This option is only
+available through the use of the new C<ggtl_set_float()> and
+C<ggtl_get_float()> functions.
 
 =item PLY (int)
 
