@@ -1,6 +1,6 @@
 #summary a tutorial introduction to ggtl
 
-<wiki:toc max_depth="2" />
+<wiki:toc max_depth="3" />
 
 = TIC TAC TUTORIAL =
 
