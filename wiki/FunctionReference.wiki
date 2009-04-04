@@ -1,6 +1,6 @@
-#summary : ggtl function reference
+#summary ggtl function reference
 
-<wiki:toc depth="1" />
+<wiki:toc max_depth="2" />
 
 = Generic Game-Tree search Library =
 
