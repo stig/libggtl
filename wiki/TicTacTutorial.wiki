@@ -12,12 +12,15 @@ The ggtlcb(3) manpage describes the various callback functions GGTL supports. Wh
 
 === Header files ===
 We obviously need to include the GGTL header, ggtl/core.h. The sl/sl.h header is for the sl(3) linked-list library. You're not required to use it, but as it is used internally by GGTL, doing so incurs no extra cost on your memory usage.
+
+{{{
   #include <ggtl/core.h>
   #include <sl/sl.h>
   #include <stdio.h>
   #include <stdlib.h>
   #include <assert.h>
   #include <string.h>
+}}}
 
 === Chosing suitable data structures===
 
