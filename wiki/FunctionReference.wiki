@@ -1,9 +1,10 @@
 #summary : ggtl function reference
+
 <wiki:toc depth="1" />
 
 = Generic Game-Tree search Library =
 
-== SYNOPSIS ==
+== Synopsis ==
 
 {{{
   #include <ggtl/core.h>
@@ -177,15 +178,12 @@ Retrieve a state or a move from its respective cache. The ggtl_uncache_*_raw ver
 Free all memory used by the cache. The use of this function should normally not be necessary.
 
 
-== GGTL (AB)USE ==
+== (AB)USE ==
 GGTL can be used even if your game is not one of those that can be solved by its AI. For example, it can be convenient to use GGTL for keeping track of history and providing undo.
 
 
-== BUGS / TODO ==
-Investigate feasibility of supporting A* search as well.
 
-
-== SEE ALSO ==
+== See also ==
 
 ggtltut(3) shows how to implement a simple Tic-Tac-Toe game using GGTL.
 
@@ -199,15 +197,15 @@ Generic Game Framework in Eiffel (G2F3) is a related project, but--as the name i
   http://freshmeat.net/projects/g2f3/
 
 
-== AUTHOR ==
+== Author ==
 Stig Brautaset <stig@brautaset.org>
 
 
-== THANKS ==
+== Thanks ==
 Thanks to Steven Goodwin for constructive comments.
 
 
-== COPYRIGHT ==
+== Copyright ==
 Copyright (C) 2005-2006 Stig Brautaset
 
 This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
